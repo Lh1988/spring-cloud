@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.common.security.mapper.CommonUserMapper">
+   
+   <select id="getUserByName"  parameterType="String"  resultType="com.shumu.common.security.model.UserModel">
+      SELECT 
+        account_identifier username, 
+        account_credential password, 
+        user_id,
+        status,
+        last_login_time,
+        update_credential_time
+      FROM 
+        sys_account
+      WHERE
+        account_identifier = #{username} 
+   </select>
+
+   <select id="getRoles"  parameterType="String"  resultType="String">
+      SELECT 
+        a.role_name
+      FROM
+        sys_role a
+      INNER JOIN
+        sys_user_role b
+      ON
+        a.id = b.role_id
+      WHERE
+        b.user_id = #{useId}
+   </select>
+
+   <select id="getPermissions"  parameterType="String"  resultType="String">
+      SELECT 
+        a.permission_name
+      FROM
+        sys_permission a,
+        sys_permission_role b,
+        sys_user_role c
+      WHERE
+        c.user_id = #{useId} AND
+        c.role_id = b.role_id AND
+        b.role_id = a.role_id
+   </select>
+
+   <update id="passwordErrorUpdate" parameterType="String">
+      UPDATE
+        sys_account
+      SET
+        last_error_count = last_error_count + 1,
+        last_error_time = now()
+      WHERE 
+        account_identifier = #{username} 
+   </update>
+   
+   <update id="loginUpdate" parameterType="String">
+      UPDATE
+        sys_account
+      SET
+        last_login_ip = #{ip},
+        last_login_time = now()
+      WHERE 
+        id = #{id}
+   </update>
+</mapper>
