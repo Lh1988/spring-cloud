@@ -4,7 +4,6 @@ import com.shumu.common.base.controller.BaseController;
 import com.shumu.system.user.entity.SysUser;
 import com.shumu.system.user.service.ISysUserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

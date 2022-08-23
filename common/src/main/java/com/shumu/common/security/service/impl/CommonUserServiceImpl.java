@@ -40,9 +40,9 @@ public class CommonUserServiceImpl implements ICommonUserService  {
     }
 
     @Override
-    public boolean passwordErrorUpdate(String username) {
+    public boolean passwordErrorUpdate(String id) {
         try {
-            commonUserMapper.passwordErrorUpdate(username); 
+            commonUserMapper.passwordErrorUpdate(id); 
         } catch (Exception e) {
             return false;
         }

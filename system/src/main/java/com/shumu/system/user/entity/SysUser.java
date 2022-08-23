@@ -26,7 +26,11 @@ public class SysUser extends BaseEntity{
 
     @ApiModelProperty(value ="昵称",dataType ="String")
     @Excel(name="昵称", width = 15)
-    private String name;
+    private String nickname;
+
+    @ApiModelProperty(value ="真名",dataType ="String")
+    @Excel(name="真名", width = 15)
+    private String realname;
 
     @ApiModelProperty(value ="性别",dataType ="Integer")
     @Excel(name="性别", width = 10, replace = {"1:男","0:女"})

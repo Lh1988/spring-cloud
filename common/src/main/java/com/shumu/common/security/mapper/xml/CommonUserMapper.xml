@@ -49,7 +49,7 @@
         last_error_count = last_error_count + 1,
         last_error_time = now()
       WHERE 
-        account_identifier = #{username} 
+        id = #{id}
    </update>
    
    <update id="loginUpdate" parameterType="String">
@@ -57,7 +57,8 @@
         sys_account
       SET
         last_login_ip = #{ip},
-        last_login_time = now()
+        last_login_time = now(),
+        last_error_count = 0,
       WHERE 
         id = #{id}
    </update>

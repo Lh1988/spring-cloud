@@ -5,7 +5,6 @@ import com.shumu.system.account.entity.SysAccount;
 import com.shumu.system.account.mapper.SysAccountMapper;
 import com.shumu.system.account.service.ISysAccountService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 /**
 * @Description: 
@@ -16,6 +15,4 @@ import org.springframework.stereotype.Service;
 */
 @Service
 public class SysAccountServiceImpl extends ServiceImpl<SysAccountMapper, SysAccount> implements ISysAccountService {
-    @Autowired
-    private SysAccountMapper sysAccountMapper;
 }

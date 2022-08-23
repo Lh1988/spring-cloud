@@ -40,7 +40,7 @@ public interface ICommonUserService {
      * @param username
      * @return
      */
-    boolean passwordErrorUpdate(String username);     
+    boolean passwordErrorUpdate(String id);     
     /**
      * 登录成功后更新账户信息
      * @param id

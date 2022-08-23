@@ -14,11 +14,11 @@ import lombok.Data;
 @Data
 public class LoginModel {
     @ApiModelProperty(value = "账号")
-    private String username;
+    private String account;
 	@ApiModelProperty(value = "密码")
     private String password;
 	@ApiModelProperty(value = "验证码")
     private String captcha;
 	@ApiModelProperty(value = "验证码key")
-    private String checkKey;
+    private String key;
 }

@@ -38,7 +38,7 @@ public interface CommonUserMapper {
      * @param username
      * @return
      */
-    void passwordErrorUpdate(String username);
+    void passwordErrorUpdate(String id);
     /**
      * 登录成功后更新账户信息
      * @param id

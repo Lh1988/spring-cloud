@@ -12,5 +12,6 @@ public interface SecurityConstant {
     public static final String AUTHORITIES = "authorities";
     public static final String TOKEN_PREFIX = "token_";
     public static final String ACCESS_TOKEN = "token";
+    public static final String AUTHORIZATION = "Authorization";
     public static final String USER_ID = "user_id";
 }
