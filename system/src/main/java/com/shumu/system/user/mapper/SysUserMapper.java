@@ -19,14 +19,8 @@ public interface SysUserMapper extends BaseMapper<SysUser>{
      * @param username
      * @return
      */
+    @Select("SELECT * FROM sys_user WHERE username = #{username}")
     SysUser getUserByUsername(String username);
-    /**
-     * 通过name获取user
-     * @param name
-     * @return
-     */
-    @Select("SELECT * FROM sys_user WHERE name = #{name}")
-    List<SysUser> getUserByName(String name);
     /**
      * 通过email获取user
      * @param email

@@ -26,11 +26,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper,SysUser> imple
     }
 
     @Override
-    public List<SysUser> getUserByName(String name) {
-        return sysUserMapper.getUserByName(name);
-    }
-
-    @Override
     public SysUser getUserByPhone(String phone) {
         return sysUserMapper.getUserByPhone(phone);
     }

@@ -19,12 +19,6 @@ public interface ISysUserService extends IService<SysUser> {
      */
     SysUser getUserByUsername(String username);
     /**
-     * 通过name获取user
-     * @param name
-     * @return
-     */
-    List<SysUser> getUserByName(String name);
-    /**
      * 通过phone获取user
      * @param phone
      * @return
