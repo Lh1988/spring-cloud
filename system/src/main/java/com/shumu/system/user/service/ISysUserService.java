@@ -1,7 +1,5 @@
 package com.shumu.system.user.service;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.shumu.system.user.entity.SysUser;
 /**

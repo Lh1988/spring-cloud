@@ -1,7 +1,5 @@
 package com.shumu.system.user.service.impl;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shumu.system.user.entity.SysUser;
 import com.shumu.system.user.mapper.SysUserMapper;
