@@ -25,7 +25,8 @@ public class JwtUtil {
     /** Token过期时间30分钟（用户登录过期时间是此时间的两倍，以token在reids缓存时间为准）*/
 	public static final long EXPIRE_TIME = 30 * 60 * 1000;
 
-    private static final byte[] key = "1234567890".getBytes();
+    private static final byte[] KEY = "1234567890".getBytes();
+    private static final String BEARER ="Bearer ";
 
     public static String createToken(byte[] key, String userId, String username, String[] authorities) {
         String token = JWT.create()
@@ -47,11 +48,11 @@ public class JwtUtil {
     }
 
     public static String refreshToken(String token) {
-        return refreshToken(token, key);
+        return refreshToken(token, KEY);
     }
 
     public static String createToken(String userId, String username, String[] authorities) {
-        return createToken(key, userId, username, authorities);
+        return createToken(KEY, userId, username, authorities);
     }
 
     public static String getUserId(String token) {
@@ -76,12 +77,12 @@ public class JwtUtil {
     }
 
     public static  boolean verifyToken(String token){
-        return JWT.of(token).setKey(key).verify();
+        return JWT.of(token).setKey(KEY).verify();
     }
 
     public static String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader(SecurityConstant.AUTHORIZATION);
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null && bearerToken.startsWith(BEARER)) {
             return bearerToken.substring(7);
         }
         return bearerToken;

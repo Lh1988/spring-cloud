@@ -35,7 +35,7 @@ public interface CommonUserMapper {
     List<String> getPermissions(String userId);
     /**
      * 密码错误时更新账户
-     * @param username
+     * @param id
      * @return
      */
     void passwordErrorUpdate(String id);

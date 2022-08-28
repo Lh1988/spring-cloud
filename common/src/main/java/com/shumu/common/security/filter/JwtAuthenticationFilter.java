@@ -19,7 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
-
+/**
+ * @author: Li
+ * @date: 2022-08-28
+ * @description: JWT Authentication Filter
+ */
 public class JwtAuthenticationFilter extends GenericFilterBean {
     @Autowired
     private IRedisService redisService;

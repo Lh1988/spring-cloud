@@ -27,7 +27,4 @@ public class SysRole extends BaseEntity {
     @ApiModelProperty("角色描述")
     @Excel(name="角色描述", width = 30)
     private String description;
-    @ApiModelProperty("角色状态")
-    @Excel(name="角色状态", width = 30)
-    private Integer status;
 }

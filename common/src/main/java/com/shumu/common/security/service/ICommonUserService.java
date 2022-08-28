@@ -37,7 +37,7 @@ public interface ICommonUserService {
     List<String> getPermissions(String userId);
     /**
      * 密码错误时更新账户
-     * @param username
+     * @param id
      * @return
      */
     boolean passwordErrorUpdate(String id);     
