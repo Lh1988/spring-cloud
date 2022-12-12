@@ -1,6 +1,10 @@
 package com.shumu.system.user.service;
 
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.shumu.system.menu.entity.SysMenu;
+import com.shumu.system.permission.entity.SysPermission;
 import com.shumu.system.user.entity.SysUser;
 /**
 * @Description: 
@@ -40,4 +44,16 @@ public interface ISysUserService extends IService<SysUser> {
      * @return
      */
     boolean disableUser(String id);
+    /**
+     * 获取菜单
+     * @param id
+     * @return
+     */
+    List<SysMenu> getMenusByUserId(String id);
+    /**
+     * 获取权限
+     * @param id
+     * @return
+     */
+    List<SysPermission> getPermissionsByUserId(String id);
 }

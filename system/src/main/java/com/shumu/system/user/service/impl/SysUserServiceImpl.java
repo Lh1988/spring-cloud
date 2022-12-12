@@ -1,9 +1,13 @@
 package com.shumu.system.user.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.shumu.system.menu.entity.SysMenu;
+import com.shumu.system.permission.entity.SysPermission;
 import com.shumu.system.user.entity.SysUser;
 import com.shumu.system.user.mapper.SysUserMapper;
 import com.shumu.system.user.service.ISysUserService;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +57,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper,SysUser> imple
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<SysMenu> getMenusByUserId(String id) {
+        return sysUserMapper.getMenusByUserId(id);
+    }
+
+    @Override
+    public List<SysPermission> getPermissionsByUserId(String id) {
+        return sysUserMapper.getPermissionsByUserId(id);
     }
     
 }

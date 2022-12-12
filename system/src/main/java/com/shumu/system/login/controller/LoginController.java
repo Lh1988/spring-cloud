@@ -3,6 +3,8 @@ package com.shumu.system.login.controller;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.shumu.common.base.response.BaseResponse;
@@ -13,6 +15,8 @@ import com.shumu.common.security.service.ICommonUserService;
 import com.shumu.common.security.util.JwtUtil;
 import com.shumu.common.util.IpUtil;
 import com.shumu.system.login.model.LoginModel;
+import com.shumu.system.menu.entity.SysMenu;
+import com.shumu.system.permission.entity.SysPermission;
 import com.shumu.system.user.entity.SysUser;
 import com.shumu.system.user.service.ISysUserService;
 
@@ -123,7 +127,7 @@ public class LoginController {
      * @param token
      * @return
      */
-    @ApiOperation("登录接口")
+    @ApiOperation("通过token获取用户信息")
 	@GetMapping("/user")
     public BaseResponse<SysUser> getUserByToken(HttpServletRequest request) {
         String token = JwtUtil.resolveToken(request);
@@ -143,8 +147,51 @@ public class LoginController {
         result.setResult(user);
         return result;
     }
-    
-
+    /**
+     * 通过token获取系统菜单
+     * @param token
+     * @return
+     */
+    @ApiOperation("获取菜单")
+	@GetMapping("/menus")
+    public BaseResponse<List<SysMenu>> getMenusByToken(HttpServletRequest request) {
+        String token = JwtUtil.resolveToken(request);
+        BaseResponse<List<SysMenu>> result = new BaseResponse<>();
+        result.setSuccess(false);
+        String userId = JwtUtil.getUserId(token);
+        if(null==userId){
+            result.setMessage("Token错误!");            
+            return result;
+        }
+        List<SysMenu> menus = sysUserService.getMenusByUserId(userId);
+        if(null==menus || menus.size()==0){
+            result.setMessage("选项不存在!");            
+            return result;
+        }
+        result.setSuccess(true);
+        result.setResult(menus);
+        return result;
+    }
+    @ApiOperation("获取菜单")
+	@GetMapping("/permissions")
+    public BaseResponse<List<SysPermission>> getPermissionsByToken(HttpServletRequest request) {
+        String token = JwtUtil.resolveToken(request);
+        BaseResponse<List<SysPermission>> result = new BaseResponse<>();
+        result.setSuccess(false);
+        String userId = JwtUtil.getUserId(token);
+        if(null==userId){
+            result.setMessage("Token错误!");            
+            return result;
+        }
+        List<SysPermission> permissions = sysUserService.getPermissionsByUserId(userId);
+        if(null==permissions || permissions.size()==0){
+            result.setMessage("选项不存在!");            
+            return result;
+        }
+        result.setSuccess(true);
+        result.setResult(permissions);
+        return result;
+    }
     /**
 	 * 后台生成图形验证码 ：有效
 	 * @param response

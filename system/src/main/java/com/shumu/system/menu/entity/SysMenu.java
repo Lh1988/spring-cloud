@@ -49,10 +49,14 @@ public class SysMenu extends BaseEntity{
     @ApiModelProperty("是否隐藏")
     @Excel(name="是否隐藏", width = 30)
     private Boolean hidden;
+    @ApiModelProperty("是否路由")
+    @Excel(name="是否路由", width = 30)
+    private Boolean route;
     @ApiModelProperty("排列顺序")
     @Excel(name="排列顺序", width = 30)
     private Integer sortIndex;
     @ApiModelProperty("菜单描述")
     @Excel(name="菜单描述", width = 60)
     private String description;
+    private SysMenu[] children;
 }

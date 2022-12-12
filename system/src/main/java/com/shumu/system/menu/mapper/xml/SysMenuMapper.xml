@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.system.menu.mapper.SysMenuMapper">
+   <select id="getMenuById"  resultType="SysMenu">
+      SELECT * FROM sys_menu WHERE pid = #{id}
+   </select>
+   <resultMap id="SysMenuTree" type="SysMenu">
+      <id property="id" column="id" />
+      <collection property="children" ofType="SysMenu" select="getMenuById" column="id"/>
+   </resultMap>
+   <select id="getMenuTree"  resultMap="SysMenuTree">
+      SELECT * FROM sys_menu WHERE pid = "0"
+   </select>
+</mapper>

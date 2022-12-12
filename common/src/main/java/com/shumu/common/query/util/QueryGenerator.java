@@ -356,7 +356,7 @@ public class QueryGenerator {
      * @param parameterMap
      */
     private static void doMultiFieldsOrder(QueryWrapper<?> queryWrapper, Map<String, String[]> parameterMap) {
-        String column = null, order = null;
+        String column = "", order = "";
         if (parameterMap != null && parameterMap.containsKey(ORDER_COLUMN)) {
             column = parameterMap.get(ORDER_COLUMN)[0];
         }

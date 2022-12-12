@@ -1,5 +1,8 @@
 package com.shumu.system.menu.service.impl;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -13,5 +16,11 @@ import com.shumu.system.menu.service.ISysMenuService;
 */
 @Service
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper,SysMenu> implements ISysMenuService{
+    @Autowired
+    private SysMenuMapper sysMenuMapper;
+    @Override
+    public List<SysMenu> getMenuTree() {
+        return sysMenuMapper.getMenuTree();
+    }
     
 }

@@ -113,12 +113,10 @@ public class SaxRowRead<T> {
      */
     private void addListData(List<SaxReadCellEntity> data) throws Exception {
         T entity = null;
-        Map<String, Object> map = null;
-        if (null == entityClass || !entityClass.getSimpleName().contains(Map.class.getSimpleName())) {
-            map = new HashMap<>(16);
-        } else {
+        Map<String, Object> map = new HashMap<>(16);
+        if (null != entityClass && entityClass.getSimpleName().contains(Map.class.getSimpleName())) {
             entity = entityClass.getDeclaredConstructor().newInstance();
-        }
+        } 
         for (int i = 0; i < data.size(); i++) {
             SaxReadCellEntity saxEntity = data.get(i);
             CellValueType type = saxEntity.getCellType();
