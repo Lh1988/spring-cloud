@@ -1,15 +1,71 @@
 server:
   port: 8080
 spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/boot?serverTimezone=UTC
     username: root
     password: lh1988
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+        minimum-idle: 10
+        idle-timeout: 30000
+        maximum-pool-size: 20
+        max-lifetime: 120000
+        connection-timeout: 30000
+  devtools:
+    add-properties: true
+  security:
+    oauth2:
+      client:
+        registration:
+          wx:
+           client-id: wxed9954c01bb89b47
+           client-secret: a7482517235173ddb4083788de60b90e
+           redirect-uri: http://localhost:8080/login/wechart/callback
+        provider:
+          wx:
+            authorization-uri: http://localhost:8080/login/wechart/callback
+mybatis:
+  mapper-locations:
+  - classpath*:com/shumu/**/mapper/xml/**Mapper.xml
+  type-aliases-package: com/shumu/**/entity/;com/shumu/**/model/
 mybatis-plus:
   mapper-locations:
-  - classpath*:com/shumu/**/mapper/xml/*Mapper.xml
+  - classpath*:com/shumu/**/mapper/xml/**Mapper.xml
   type-aliases-package: com/shumu/**/entity/;com/shumu/**/model/
+  global-config:
+    banner: true
+
+management:
+  #actuator端口 如果不配置做默认使用上面8080端口
+  server:
+    port: 8080
+  endpoints:
+    web:
+      exposure:
+        #默认值访问health,info端点  用*可以包含全部端点
+        include: "*"
+      #修改访问路径 2.0之前默认是/; 2.0默认是/actuator可以通过这个属性值修改
+      base-path: /actuator
+      
+  endpoint:
+    shutdown:
+      enabled: true #打开shutdown端点
+    health:
+      show-details: always #获得健康检查中所有指标的详细信息
+
+springdoc:
+  show-actuator: true
+  swagger-ui:
+    path: /swagger-ui
+    enabled: true
+  api-docs:
+    path: /v3/api-docs
+    enabled: true 
+
 shumu: 
   timeout: 
     account: 0

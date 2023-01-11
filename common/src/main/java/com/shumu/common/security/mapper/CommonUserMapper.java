@@ -1,10 +1,10 @@
 package com.shumu.common.security.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import com.shumu.common.security.model.UserModel;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 /**
 * @Description: 
@@ -13,7 +13,6 @@ import org.apache.ibatis.annotations.Param;
 * @LastEditTime: 2022-01-14
 * @LastEditors: Li
 */
-@Mapper
 public interface CommonUserMapper {
     /**
      * 通过用户名获取用户信息
@@ -32,7 +31,7 @@ public interface CommonUserMapper {
      * @param userId
      * @return
      */
-    List<String> getPermissions(String userId);
+    List<Map<String,String>> getPermissions(String userId);
     /**
      * 密码错误时更新账户
      * @param id

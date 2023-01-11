@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.shumu.common.constant.CommonConstant;
 import com.shumu.common.security.authority.CommonGrantedAuthority;
@@ -48,7 +49,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserDetailsModel userDetails = new UserDetailsModel();
         userDetails.setUsername(username);
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        userDetails.setAuthorities(authorities);
         log.info(username);
         if (user != null) {
             userDetails.setPassword(user.getPassword());
@@ -96,22 +96,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             }
             userDetails.setAccountNonLocked(accountNonLocked);
             /* 活动的账户获取其角色与权限*/
-            if (!accountNonLocked || !credentialsNonExpired || !accountNonExpired || !enabled) {
+            if (accountNonLocked && credentialsNonExpired && accountNonExpired && enabled) {
                 String userId = user.getUserId();
                 if (userId != null) {    
                     List<String> roles = commonUserService.getRoles(userId);
-                    List<String> permissions = commonUserService.getPermissions(userId);
+                    List<Map<String,String>> permissions = commonUserService.getPermissions(userId);
                     // 添加角色
                     if (roles != null && roles.size() > 0) {
                         for (String role : roles) {
-                            GrantedAuthority grantedAuthority = new CommonGrantedAuthority(role);
+                            GrantedAuthority grantedAuthority = new CommonGrantedAuthority("ROLE_"+role);
                             authorities.add(grantedAuthority);
                         }
                     }
                     // 添加权限
                     if (permissions != null && permissions.size() > 0) {
-                        for (String permission : permissions) {
-                            GrantedAuthority grantedAuthority = new CommonGrantedAuthority(permission);
+                        for (Map<String,String> permission : permissions) {
+                            GrantedAuthority grantedAuthority = new CommonGrantedAuthority(permission.get("permission_name"));
                             authorities.add(grantedAuthority);
                         }
                     }

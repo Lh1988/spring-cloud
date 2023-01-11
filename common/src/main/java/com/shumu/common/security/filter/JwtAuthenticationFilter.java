@@ -2,12 +2,12 @@ package com.shumu.common.security.filter;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shumu.common.base.response.BaseResponse;
@@ -41,17 +41,21 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             return;
         }
         /*--1.验证token ----------------------------------------------*/
-        String userId = JwtUtil.getUserId(token);
-        if (JwtUtil.verifyToken(token)) {
-            SecurityContext securityContext = SecurityContextHolder.getContext();
+        if (JwtUtil.verifyToken(token)) {            
+            SecurityContext securityContext = SecurityContextHolder.getContextHolderStrategy().getContext();
             securityContext.setAuthentication(JwtUtil.getAuthentication(token));
             chain.doFilter(request, response);
             return;
         } else {
-            if (redisService.hasKey(SecurityConstant.TOKEN_PREFIX + userId)) {
+            String userId = JwtUtil.getUserId(token);
+            if (null!=userId && redisService.hasKey(SecurityConstant.TOKEN_PREFIX + userId)) {
                 String newToken = JwtUtil.refreshToken(token);
                 redisService.setString(SecurityConstant.TOKEN_PREFIX + userId, newToken);
                 redisService.setExpire(SecurityConstant.TOKEN_PREFIX + userId, JwtUtil.EXPIRE_TIME * 2);
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                securityContext.setAuthentication(JwtUtil.getAuthentication(token));
+                chain.doFilter(request, response);
+                return;
             } else {
                 OutputStream os = null;
                 try {

@@ -1,6 +1,7 @@
 package com.shumu.common.security.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.shumu.common.security.model.UserModel;
 
@@ -34,7 +35,7 @@ public interface ICommonUserService {
      * @param userId
      * @return
      */
-    List<String> getPermissions(String userId);
+    List<Map<String,String>> getPermissions(String userId);
     /**
      * 密码错误时更新账户
      * @param id

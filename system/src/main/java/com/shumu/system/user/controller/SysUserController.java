@@ -7,8 +7,9 @@ import com.shumu.system.user.entity.SysUserRole;
 import com.shumu.system.user.service.ISysUserRoleService;
 import com.shumu.system.user.service.ISysUserService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,8 +17,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,19 +32,20 @@ import org.springframework.web.bind.annotation.RestController;
 * @LastEditTime: 2022-01-25
 * @LastEditors: Li
 */
-@Api(tags = "用户操作")
+@Slf4j
+@Tag(name ="用户操作")
 @RestController
 @RequestMapping("/sys/user")
 public class SysUserController extends BaseController<SysUser,ISysUserService> {
     @Autowired
     private ISysUserRoleService sysUserRoleService;
 
-    @ApiOperation("添加角色到用户")
+    @Operation(summary = "添加角色到用户")
     @PostMapping("/addRole")
-    public BaseResponse<?> addRoleToUser(String userId, String roleId) {
+    public BaseResponse<?> addRoleToUser(@RequestBody Map<String,String> param) {
         SysUserRole sysUserRole = new SysUserRole();
-        sysUserRole.setUserId(userId);
-        sysUserRole.setRoleId(roleId);
+        sysUserRole.setUserId(param.get("userId"));
+        sysUserRole.setRoleId(param.get("roleId"));
         try {
             sysUserRoleService.save(sysUserRole);
         } catch (Exception e) {
@@ -47,13 +53,15 @@ public class SysUserController extends BaseController<SysUser,ISysUserService> {
         }
         return BaseResponse.ok("添加成功");
     }
-    @ApiOperation("添加角色到用户")
+    @Operation(summary = "添加角色到用户")
     @PostMapping("/addRoles")
-    public BaseResponse<?> addRolesToUser(String userId, List<String> roleIds) {
-        if(null==roleIds || roleIds.size()==0 || null==userId){
+    public BaseResponse<?> addRolesToUser(@RequestBody Map<String,String> param) {
+        if(null==param || null==param.get("roleIds") || null==param.get("userId")){
             return BaseResponse.error("添加成失败");
         }
         List<SysUserRole> entityList = new ArrayList<>();
+        String[] roleIds = param.get("roleIds").split(",", 0);
+        String userId = param.get("userId");
         for (String roleId : roleIds) {
             SysUserRole sysUserRole = new SysUserRole();
             sysUserRole.setUserId(userId);
@@ -67,9 +75,24 @@ public class SysUserController extends BaseController<SysUser,ISysUserService> {
         }
         return BaseResponse.ok("添加成功");
     }
-    @ApiOperation("移除用户一角色")
-    @PostMapping("/removeRole")
-    public BaseResponse<?> removeRoleFromUser(String id) {
+    @Operation(summary = "移除用户角色")
+    @DeleteMapping("/removeRole")
+    public BaseResponse<?> removeRoleFromUser(@RequestParam("userId") String userId, @RequestParam("roleId") String roleId) {
+        Map<String,Object> columnMap = new HashMap<>(8);
+        columnMap.put("user_id", userId);
+        columnMap.put("role_id", roleId);
+        log.info(roleId,userId);
+        try {
+            sysUserRoleService.removeByMap(columnMap);
+        } catch (Exception e) {
+            return BaseResponse.error("移除失败");
+        }
+        return BaseResponse.ok("移除成功");
+    }
+
+    @Operation(summary = "移除用户一角色")
+    @DeleteMapping("/removeRoleById")
+    public BaseResponse<?> removeRoleById(String id) {
         try {
             sysUserRoleService.removeById(id);
         } catch (Exception e) {
@@ -77,17 +100,34 @@ public class SysUserController extends BaseController<SysUser,ISysUserService> {
         }
         return BaseResponse.ok("移除成功");
     }
-    @ApiOperation("清空用户所有角色")
-    @PostMapping("/clearRole")
+    @Operation(summary = "清空用户所有角色")
+    @DeleteMapping("/clearRole")
     public BaseResponse<?> clearRoleFromUser(String userId) {
         Map<String,Object> columnMap = new HashMap<>(8);
-        columnMap.put("userId", userId);
+        columnMap.put("user_id", userId);
         try {
             sysUserRoleService.removeByMap(columnMap);
         } catch (Exception e) {
             return BaseResponse.error("移除失败");
         }
         return BaseResponse.ok("移除成功");
+    }
+    @Operation(summary = "用户角色")
+    @GetMapping("/getRole")
+    public BaseResponse<?> getMenuRole(String userId) {
+        List<SysUserRole> list = new ArrayList<>();
+        Map<String,Object> columnMap = new HashMap<>(8);
+        columnMap.put("user_id", userId);
+        try{
+            list = sysUserRoleService.listByMap(columnMap);
+        } catch (Exception e) {
+            return BaseResponse.error("数据获取失败");
+        }
+        BaseResponse<List<SysUserRole>> result = new BaseResponse<>();
+        result.setSuccess(true);
+        result.setMessage("数据查询成功!");
+        result.setResult(list);
+        return result;
     }
 
 }

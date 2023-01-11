@@ -5,15 +5,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import com.shumu.common.base.response.BaseResponse;
+import com.shumu.common.constant.CommonConstant;
 import com.shumu.common.redis.service.IRedisService;
 import com.shumu.common.security.constant.SecurityConstant;
 import com.shumu.common.security.model.UserDetailsModel;
 import com.shumu.common.security.service.ICommonUserService;
+import com.shumu.common.security.service.IPasswordEncoderService;
 import com.shumu.common.security.util.JwtUtil;
 import com.shumu.common.util.IpUtil;
+import com.shumu.common.util.StringUtil;
 import com.shumu.system.login.model.LoginModel;
 import com.shumu.system.menu.entity.SysMenu;
 import com.shumu.system.permission.entity.SysPermission;
@@ -21,11 +24,8 @@ import com.shumu.system.user.entity.SysUser;
 import com.shumu.system.user.service.ISysUserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,8 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.LineCaptcha;
 import cn.hutool.crypto.SecureUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -49,7 +49,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @RestController
 @RequestMapping("/login")
-@Api(tags = "用户登录")
+@Tag(name="用户登录")
 @Slf4j
 public class LoginController {
     @Autowired
@@ -60,16 +60,14 @@ public class LoginController {
     private IRedisService redisService;
     @Autowired
     private ICommonUserService commonUserService;
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+    @Autowired
+    private IPasswordEncoderService passwordEncoderService;
     /**
      * 
      * @param loginModel
      * @return
      */
-    @ApiOperation("登录接口")
+    @Operation(summary = "登录接口")
 	@RequestMapping(value = "/account", method = RequestMethod.POST)
     public BaseResponse<?> login(HttpServletRequest request, @RequestBody LoginModel loginModel){
         /*--1.1.图形验证码验证：获取验证码与验证码缓存key --------------------------*/
@@ -87,22 +85,14 @@ public class LoginController {
         String account = loginModel.getAccount();
         UserDetailsModel user = (UserDetailsModel) userDetailsService.loadUserByUsername(account);
         /*--2.2.登录账户验证：验证用户 ------------------------------------------*/
-        if(!user.isEnabled()){
-            return BaseResponse.error("账户"+account+"未启用！");
-        }
-        if(!user.isAccountNonExpired()){
-            return BaseResponse.error("账户已过期，请联系管理员！");
-        }
-        if(!user.isAccountNonLocked()){
-            return BaseResponse.error("账户已锁定，请联系管理员！");
-        }
-        if(!user.isCredentialsNonExpired()){
-            return BaseResponse.error("密码已锁定，请联系管理员！");
+        String msg = checkAccount(user);
+        if(null!=msg){
+           return BaseResponse.error(msg);
         }
         /*--3.1.登录密码验证：获取前端密码 ------------------------------------*/
 		String password = loginModel.getPassword();
         /*--3.2.登录密码验证：用托管密码编码器验证密码--------------------------*/
-        if(!passwordEncoder().matches(password, user.getPassword())){
+        if(!passwordEncoderService.delegatingPasswordEncoder().matches(password, user.getPassword())){
             //密码正确，更新密码错误次数
             commonUserService.passwordErrorUpdate(user.getId());
             return BaseResponse.error("密码错误");
@@ -113,7 +103,12 @@ public class LoginController {
         /*--4.1.登录成功：创建JWT Token -------------------------------------*/
         String userId = user.getUserId();
         Collection<? extends GrantedAuthority> authorities=user.getAuthorities();
-        String token = JwtUtil.createToken(userId, account, authorities.toArray(new String[authorities.size()]));
+        String[] arr = new String[authorities.size()]; 
+        int i = 0;
+        for (GrantedAuthority authority : authorities) {
+            arr[i] = authority.getAuthority();
+        }
+        String token = JwtUtil.createToken(userId, account, arr);
         /*--4.2.登录成功：缓存 Token ----------------------------------------*/
         redisService.setString(SecurityConstant.TOKEN_PREFIX+userId, token);
         redisService.setExpire(SecurityConstant.TOKEN_PREFIX+userId, JwtUtil.EXPIRE_TIME*2);
@@ -122,12 +117,27 @@ public class LoginController {
         log.info(account+"-登录成功-"+ ip +"-"+LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         return BaseResponse.ok(token, "登录成功！");
     }
+    private String checkAccount(UserDetailsModel user){
+        if(!user.isEnabled()){
+            return "账户"+user.getUsername()+"未启用！";
+        }
+        if(!user.isAccountNonExpired()){
+            return "账户已过期，请联系管理员！";
+        }
+        if(!user.isAccountNonLocked()){
+            return "账户已锁定，请联系管理员！";
+        }
+        if(!user.isCredentialsNonExpired()){
+            return "密码已锁定，请联系管理员！";
+        }
+        return null;
+    }
     /**
      * 通过token获取用户信息
      * @param token
      * @return
      */
-    @ApiOperation("通过token获取用户信息")
+    @Operation(summary = "通过token获取用户信息")
 	@GetMapping("/user")
     public BaseResponse<SysUser> getUserByToken(HttpServletRequest request) {
         String token = JwtUtil.resolveToken(request);
@@ -152,7 +162,7 @@ public class LoginController {
      * @param token
      * @return
      */
-    @ApiOperation("获取菜单")
+    @Operation(summary = "获取菜单")
 	@GetMapping("/menus")
     public BaseResponse<List<SysMenu>> getMenusByToken(HttpServletRequest request) {
         String token = JwtUtil.resolveToken(request);
@@ -172,7 +182,7 @@ public class LoginController {
         result.setResult(menus);
         return result;
     }
-    @ApiOperation("获取菜单")
+    @Operation(summary = "获取菜单")
 	@GetMapping("/permissions")
     public BaseResponse<List<SysPermission>> getPermissionsByToken(HttpServletRequest request) {
         String token = JwtUtil.resolveToken(request);
@@ -197,7 +207,7 @@ public class LoginController {
 	 * @param response
 	 * @param key
 	 */
-	@ApiOperation("获取验证码")
+	@Operation(summary = "获取验证码")
 	@GetMapping(value = "/code/{key}")
 	public BaseResponse<String> code(HttpServletResponse response,@PathVariable String key){
 		BaseResponse<String> res = new BaseResponse<String>();
@@ -218,6 +228,65 @@ public class LoginController {
 		}
 		return res;
 	}
+
+    /**
+	 * 后台生成短信验证码并发送
+	 * @param response
+	 * @param key
+	 */
+	@Operation(summary = "获取验证码")
+	@GetMapping(value = "/sms")
+	public BaseResponse<Object> sms(String phone){
+        if(StringUtil.isEmpty(phone)) {
+	    	return BaseResponse.error("手机号不能为空！");
+	    }
+        String number = redisService.getString(phone);
+		if (StringUtil.isNotEmpty(number)) {
+			return BaseResponse.error("验证码10分钟内，仍然有效！");
+		}
+        UserDetailsModel user = (UserDetailsModel) userDetailsService.loadUserByUsername(phone);
+        if(null==user){
+            return BaseResponse.error("该用户不存在或未绑定手机号");
+        }
+        String msg = checkAccount(user);
+        if(null==msg){
+           return BaseResponse.error(msg);
+        }
+        try {
+            return BaseResponse.error(msg);
+        } catch (Exception e) {
+            return BaseResponse.error(" 短信接口未配置，请联系管理员！");
+        }
+	}
+
+    	/**
+	 * 退出登录
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@GetMapping(value = "/logout")
+	public BaseResponse<Object> logout(HttpServletRequest request,HttpServletResponse response) {
+		//用户退出逻辑
+	    String token = request.getHeader(CommonConstant.X_ACCESS_TOKEN);
+	    if(StringUtil.isEmpty(token)) {
+	    	return BaseResponse.error("退出登录失败！");
+	    }
+        String userId = JwtUtil.getUserId(token);
+	    if(StringUtil.isNotEmpty(userId)) {
+			//update-begin--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
+			//baseCommonService.addLog("用户名: "+sysUser.getRealname()+",退出成功！", CommonConstant.LOG_TYPE_1, null,sysUser);
+			//update-end--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
+            String username = JwtUtil.getUsername(token);
+	    	log.info(" 用户名:  "+username+",退出成功！ ");
+	    	//清空用户登录Token缓存
+            redisService.delete(SecurityConstant.TOKEN_PREFIX+userId);
+	    	return BaseResponse.ok("退出登录成功！");
+	    }else {
+	    	return BaseResponse.error("Token无效!");
+	    }
+	}
+
 
 
 

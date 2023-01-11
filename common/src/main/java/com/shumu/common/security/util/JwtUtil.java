@@ -4,7 +4,7 @@ package com.shumu.common.security.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +13,7 @@ import com.shumu.common.security.authority.CommonGrantedAuthority;
 import com.shumu.common.security.constant.SecurityConstant;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.jwt.JWT;
 /**
 * @Description: JWT工具
@@ -57,7 +58,12 @@ public class JwtUtil {
 
     public static String getUserId(String token) {
         JWT jwt = JWT.of(token);
-        return jwt.getPayload(SecurityConstant.USER_ID).toString();
+        String id = "";
+        Object object = jwt.getPayload(SecurityConstant.USER_ID);
+        if (object != null) {
+            id = object.toString();
+        }
+        return id;
     }
 
     public static String getUsername(String token) {
@@ -68,7 +74,11 @@ public class JwtUtil {
 
     public static String[] getAuthorities(String token) {
         JWT jwt = JWT.of(token);
-        return (String[]) jwt.getPayload(SecurityConstant.AUTHORITIES);
+        JSONArray arr = (JSONArray)jwt.getPayload(SecurityConstant.AUTHORITIES);
+        if(!arr.isEmpty()){
+            return arr.toArray(new String[0]);
+        }
+        return new String[0];
     }
 
 

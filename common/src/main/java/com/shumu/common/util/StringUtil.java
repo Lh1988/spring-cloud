@@ -31,7 +31,7 @@ public class StringUtil {
      * @throws PatternSyntaxException
      */
     public static String specialCharFilter(String str) throws PatternSyntaxException {
-        String regEx = "[`_《》~!@#$%^&*()+=|{}':;',\\[\\].<>?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
+        String regEx = "[`_《》~!@#$%^&*()+=|{}':;',\\[\\]<>?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(str);
         return m.replaceAll("").trim();

@@ -8,7 +8,6 @@ import com.shumu.system.user.mapper.SysUserMapper;
 import com.shumu.system.user.service.ISysUserService;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 /**

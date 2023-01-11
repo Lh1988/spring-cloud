@@ -1,5 +1,5 @@
 spring:
   application:
-    name: system
+    name: "MyApp"
   profiles:
     active: dev

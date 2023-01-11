@@ -5,8 +5,7 @@ import java.time.LocalDateTime;
 import com.shumu.common.base.entity.BaseEntity;
 import com.shumu.common.office.excel.annotation.Excel;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
@@ -18,41 +17,41 @@ import lombok.EqualsAndHashCode;
 */
 @Data
 @EqualsAndHashCode(callSuper=false)
-@ApiModel("系统用户")
+@Schema(title= "系统用户")
 public class SysUser extends BaseEntity{
-    @ApiModelProperty(value ="用户名",dataType ="String")
+    @Schema(title = "用户名",type ="String")
     @Excel(name="用户名", width = 15)
     private String username;
 
-    @ApiModelProperty(value ="昵称",dataType ="String")
+    @Schema(title = "昵称",type ="String")
     @Excel(name="昵称", width = 15)
     private String nickname;
 
-    @ApiModelProperty(value ="真名",dataType ="String")
+    @Schema(title = "真名",type ="String")
     @Excel(name="真名", width = 15)
     private String realname;
 
-    @ApiModelProperty(value ="性别",dataType ="Integer")
+    @Schema(title = "性别",type ="Integer")
     @Excel(name="性别", width = 10, replace = {"1:男","0:女"})
     private Integer sex;
 
-    @ApiModelProperty(value ="邮箱",dataType ="String")
+    @Schema(title = "邮箱",type ="String")
     @Excel(name="邮箱", width = 30)
     private String email;
 
-    @ApiModelProperty(value ="手机号",dataType ="String")
+    @Schema(title = "手机号",type ="String")
     @Excel(name="手机号", width = 20)
     private String phone;
 
-    @ApiModelProperty(value ="头像",dataType ="String")
+    @Schema(title = "头像",type ="String")
     @Excel(name="头像", width = 15)
     private String avatar;
 
-    @ApiModelProperty(value ="生日",dataType ="LocalDateTime")
+    @Schema(title = "生日",type ="LocalDateTime")
     @Excel(name="生日", width = 20, format = "yyyy-MM-dd")
     private LocalDateTime birthday;
 
-    @ApiModelProperty(value ="备注信息",dataType ="String")
+    @Schema(title = "备注信息",type ="String")
     @Excel(name="备注信息", width = 30)
     private String description;
 }

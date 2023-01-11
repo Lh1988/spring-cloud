@@ -1,7 +1,6 @@
 package com.shumu.system.login.model;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 /**
 * @Description: 账号登录
@@ -10,15 +9,15 @@ import lombok.Data;
 * @LastEditTime: 2022-01-13
 * @LastEditors: Li
 */
-@ApiModel(value = "账号登录")
+@Schema(title = "账号登录")
 @Data
 public class LoginModel {
-    @ApiModelProperty(value = "账号")
+    @Schema(title = "账号")
     private String account;
-	@ApiModelProperty(value = "密码")
+	@Schema(title = "密码")
     private String password;
-	@ApiModelProperty(value = "验证码")
+	@Schema(title = "验证码")
     private String captcha;
-	@ApiModelProperty(value = "验证码key")
+	@Schema(title = "验证码key")
     private String key;
 }

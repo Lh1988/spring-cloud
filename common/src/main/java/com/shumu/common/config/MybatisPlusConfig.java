@@ -1,6 +1,5 @@
 package com.shumu.common.config;
 
-import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,12 +8,11 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 /**
-* @description: Mybatis Plus Config
+* @description: 
 * @author: Li
-* @date: 2022-12-11
+* @date: 2022-12-26
 */
 @Configuration
-@MapperScan("com/shumu/**/mapper/xml/*Mapper.xml")
 public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {

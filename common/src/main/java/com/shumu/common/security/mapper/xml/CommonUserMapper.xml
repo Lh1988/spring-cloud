@@ -18,7 +18,7 @@
 
    <select id="getRoles"  parameterType="String"  resultType="String">
       SELECT 
-        a.role_name
+        a.role_code
       FROM
         sys_role a
       INNER JOIN
@@ -29,9 +29,9 @@
         b.user_id = #{useId}
    </select>
 
-   <select id="getPermissions"  parameterType="String"  resultType="String">
+   <select id="getPermissions"  parameterType="String"  resultType="Map">
       SELECT 
-        a.permission_name
+        a.permission_name,a.base_path,a.access_methods
       FROM
         sys_permission a,
         sys_permission_role b,
@@ -39,7 +39,7 @@
       WHERE
         c.user_id = #{useId} AND
         c.role_id = b.role_id AND
-        b.role_id = a.role_id
+        b.permission_id = a.id
    </select>
 
    <update id="passwordErrorUpdate" parameterType="String">

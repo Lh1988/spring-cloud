@@ -9,8 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -27,6 +27,8 @@ import com.shumu.common.office.excel.imports.param.ImportParam;
 import com.shumu.common.office.excel.imports.util.ImportUtil;
 import com.shumu.common.query.util.QueryGenerator;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,13 +36,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -51,10 +51,10 @@ import lombok.extern.slf4j.Slf4j;
  * @LastEditors: Li
  */
 @Slf4j
-public class BaseController<T extends BaseEntity , S extends IService<T>> {
-    
-    protected String name="";
-    protected String description="";
+public class BaseController<T extends BaseEntity, S extends IService<T>> {
+
+    protected String name = "";
+    protected String description = "";
 
     @Autowired
     private S service;
@@ -71,7 +71,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @throws NoSuchMethodException
      * @throws InvocationTargetException
      */
-    @ApiOperation(value = "获取分页列表数据")
+    @Operation(summary = "获取分页列表数据")
     @GetMapping(value = "/pages")
     @PreAuthorize("hasAuthority()")
     public BaseResponse<IPage<T>> queryPageList(T object,
@@ -94,6 +94,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param object 实体类对象
      * @return BaseResponse<?>
      */
+    @Operation(summary = "插入数据")
     @PostMapping(value = "/add")
     public BaseResponse<?> add(@RequestBody T object) {
         object.setCreateTime(LocalDateTime.now());
@@ -112,6 +113,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param id id
      * @return BaseResponse<?>
      */
+    @Operation(summary = "删除数据")
     @DeleteMapping(value = "/delete")
     public BaseResponse<?> delete(@RequestParam(name = "id") String id) {
         try {
@@ -128,6 +130,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param ids ids
      * @return BaseResponse<?>
      */
+    @Operation(summary = "批量删除数据")
     @DeleteMapping(value = "/deleteBatch")
     public BaseResponse<?> deleteBatch(@RequestParam(value = "ids") String ids) {
         if (ids == null || "".equals(ids.trim())) {
@@ -144,6 +147,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param object 实体类对象
      * @return
      */
+    @Operation(summary = "更新数据")
     @PutMapping(value = "/edit")
     public BaseResponse<?> edit(@RequestBody T object) {
         object.setUpdateTime(LocalDateTime.now());
@@ -162,6 +166,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param id id
      * @return BaseResponse<T>
      */
+    @Operation(summary = "查询单个数据")
     @GetMapping(value = "/queryById")
     public BaseResponse<T> queryById(@RequestParam(name = "id") String id) {
         T object = service.getById(id);
@@ -185,6 +190,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @param id id
      * @return BaseResponse<T>
      */
+    @Operation(summary = "通过ids查询")
     @GetMapping(value = "/queryByIds")
     public BaseResponse<List<T>> queryByIds(@RequestParam(name = "ids") String ids) {
         BaseResponse<List<T>> result = new BaseResponse<>();
@@ -213,6 +219,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
 
     /**
      * 根据查询条件获取全部查询结果列表
+     * 
      * @param entity 查询用实体类对象
      * @param req    查询参数
      * @return
@@ -220,6 +227,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
      * @throws NoSuchMethodException
      * @throws InvocationTargetException
      */
+    @Operation(summary = "根据查询条件获取全部查询结果列表")
     @GetMapping(value = "/list")
     public BaseResponse<List<T>> queryEntityList(T entity, HttpServletRequest req)
             throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
@@ -232,46 +240,55 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
         return result;
     }
 
-    @RequestMapping("/export/xls")
-    public ModelAndView exportXls(T object, HttpServletRequest request) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        /*1.组装查询条件*/
-        Map<String,String[]> parameterMap=request.getParameterMap();
+    @Operation(summary = "导出xls")
+    @GetMapping("/export/xls")
+    public ModelAndView exportXls(T object, HttpServletRequest request)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        /* 1.组装查询条件 */
+        Map<String, String[]> parameterMap = request.getParameterMap();
         QueryWrapper<T> queryWrapper = QueryGenerator.initQueryWrapper(object, parameterMap);
-        /*2.获取数据库数据：实体类型*/
+        /* 2.获取数据库数据：实体类型 */
         List<T> list = service.list(queryWrapper);
-        /*3.配置导出Excel的参数*/
-        /*3.1.创建Excel的ModelAndView：xls格式*/
-        ModelAndView mv = new ModelAndView(new ExportXlsView<T>());;
-        /*3.2.导出文件名*/
+        /* 3.配置导出Excel的参数 */
+        /* 3.1.创建Excel的ModelAndView：xls格式 */
+        ModelAndView mv = new ModelAndView(new ExportXlsView<T>());
+        ;
+        /* 3.2.导出文件名 */
         mv.addObject("fileName", "导出数据");
-        /*3.3.配置导出文件参数*/
+        /* 3.3.配置导出文件参数 */
         ExportParam exportParam = ExportUtil.getDefaultEntityExportParam(object);
-        /*5.向mv添加参数*/
+        /* 5.向mv添加参数 */
         mv.addObject(ExcelConstant.EXPORT_EXCEL_PARAM, exportParam);
         mv.addObject(ExcelConstant.EXPORT_EXCEL_DATA, list);
         return mv;
     }
-    @RequestMapping("/export/xlsx")
-    public ModelAndView exportXlsx(T object, HttpServletRequest request) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        /*1.组装查询条件*/
-        Map<String,String[]> parameterMap=request.getParameterMap();
+
+    @Operation(summary = "导出xlsx")
+    @GetMapping("/export/xlsx")
+    public ModelAndView exportXlsx(T object, HttpServletRequest request)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        /* 1.组装查询条件 */
+        Map<String, String[]> parameterMap = request.getParameterMap();
         QueryWrapper<T> queryWrapper = QueryGenerator.initQueryWrapper(object, parameterMap);
-        /*2.获取数据库数据：实体类型*/
+        /* 2.获取数据库数据：实体类型 */
         List<T> list = service.list(queryWrapper);
-        /*3.配置导出Excel的参数*/
-        /*3.1.创建Excel的ModelAndView：xlsx格式*/
-        ModelAndView mv = new ModelAndView(new ExportXlsxView<T>());;
-        /*3.2.导出文件名*/
+        /* 3.配置导出Excel的参数 */
+        /* 3.1.创建Excel的ModelAndView：xlsx格式 */
+        ModelAndView mv = new ModelAndView(new ExportXlsxView<T>());
+        ;
+        /* 3.2.导出文件名 */
         mv.addObject("fileName", "导出数据");
-        /*3.3.配置导出文件参数*/
+        /* 3.3.配置导出文件参数 */
         ExportParam exportParam = ExportUtil.getDefaultEntityExportParam(object);
-        /*5.向mv添加参数*/
+        /* 5.向mv添加参数 */
         mv.addObject(ExcelConstant.EXPORT_EXCEL_PARAM, exportParam);
         mv.addObject(ExcelConstant.EXPORT_EXCEL_DATA, list);
         return mv;
     }
+
+    @Operation(summary = "导入")
     @PostMapping(value = "/import")
-    public BaseResponse<?>  importExcel(HttpServletRequest request, HttpServletResponse response, Class<T> clazz) {
+    public BaseResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<T> clazz) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
         for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -282,7 +299,7 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
             param.setHeadRows(1);
             try {
                 List<T> list = ImportUtil.importExcel(file.getInputStream(), param, clazz);
-                //批量插入数据
+                // 批量插入数据
                 long start = System.currentTimeMillis();
                 service.saveBatch(list);
                 log.info("消耗时间" + (System.currentTimeMillis() - start) + "毫秒");
@@ -300,6 +317,5 @@ public class BaseController<T extends BaseEntity , S extends IService<T>> {
         }
         return BaseResponse.error("文件导入失败!");
     }
-
 
 }

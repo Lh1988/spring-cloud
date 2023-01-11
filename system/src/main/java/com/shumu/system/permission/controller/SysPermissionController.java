@@ -17,8 +17,8 @@ import com.shumu.system.permission.entity.SysPermissionRole;
 import com.shumu.system.permission.service.ISysPermissionRoleService;
 import com.shumu.system.permission.service.ISysPermissionService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 /**
 * @description: 
 * @author: Li
@@ -26,12 +26,12 @@ import io.swagger.annotations.ApiOperation;
 */
 @RestController
 @RequestMapping("/sys/permisssion")
-@Api(tags = "权限操作")
+@Tag(name ="权限操作")
 public class SysPermissionController extends BaseController<SysPermission,ISysPermissionService>{
     @Autowired
     private ISysPermissionRoleService sysPermissionRoleService;
      
-    @ApiOperation("添加角色到权限")
+    @Operation(summary = "添加角色到权限")
     @PostMapping("/addRole")
     public BaseResponse<?> addRoleToPermission(String permissionId, String roleId) {
         SysPermissionRole sysPermissionRole = new SysPermissionRole();
@@ -45,7 +45,7 @@ public class SysPermissionController extends BaseController<SysPermission,ISysPe
         return BaseResponse.ok("添加成功");
     }
 
-    @ApiOperation("添加角色列表到权限")
+    @Operation(summary = "添加角色列表到权限")
     @PostMapping("/addRoles")
     public BaseResponse<?> addRolesToPermission(String permissionId, List<String> roleIds) {
         if(null==roleIds || roleIds.size()==0 || null==permissionId){
@@ -65,7 +65,7 @@ public class SysPermissionController extends BaseController<SysPermission,ISysPe
         }
         return BaseResponse.ok("添加成功");
     }
-    @ApiOperation("移除权限一角色")
+    @Operation(summary = "移除权限一角色")
     @PostMapping("/removeRole")
     public BaseResponse<?> removeRoleFromPermission(String id) {
         try {
@@ -75,7 +75,7 @@ public class SysPermissionController extends BaseController<SysPermission,ISysPe
         }
         return BaseResponse.ok("移除成功");
     }
-    @ApiOperation("清空权限所有角色")
+    @Operation(summary = "清空权限所有角色")
     @PostMapping("/clearRole")
     public BaseResponse<?> clearRoleFromUser(String userId) {
         Map<String,Object> columnMap = new HashMap<>(8);

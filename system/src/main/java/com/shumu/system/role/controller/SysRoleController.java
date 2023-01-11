@@ -7,7 +7,7 @@ import com.shumu.common.base.controller.BaseController;
 import com.shumu.system.role.entity.SysRole;
 import com.shumu.system.role.service.ISysRoleService;
 
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 /**
 * @description: 
 * @author: Li
@@ -15,7 +15,7 @@ import io.swagger.annotations.Api;
 */
 @RestController
 @RequestMapping("/sys/role")
-@Api(tags = "角色操作")
+@Tag(name ="角色操作")
 public class SysRoleController extends BaseController<SysRole,ISysRoleService> {
     
 }

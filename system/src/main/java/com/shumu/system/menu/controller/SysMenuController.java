@@ -20,8 +20,8 @@ import com.shumu.system.menu.entity.SysMenuRole;
 import com.shumu.system.menu.service.ISysMenuRoleService;
 import com.shumu.system.menu.service.ISysMenuService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 /**
 * @description: 
 * @author: Li
@@ -29,14 +29,14 @@ import io.swagger.annotations.ApiOperation;
 */
 @RestController
 @RequestMapping("/sys/menu")
-@Api(tags = "菜单操作")
+@Tag(name ="菜单操作")
 public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
     @Autowired
     private ISysMenuRoleService sysMenuRoleService;
     @Autowired
     private ISysMenuService sysMenuService;
 
-    @ApiOperation("菜单Tree")
+    @Operation(summary = "菜单Tree")
     @GetMapping("/tree")
     public BaseResponse<?> getMenuTree() {
         List<SysMenu> list = new ArrayList<>();
@@ -52,7 +52,7 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
         return result;
     }
 
-    @ApiOperation("菜单角色")
+    @Operation(summary = "菜单角色")
     @GetMapping("/getRole")
     public BaseResponse<?> getMenuRole(String menuId) {
         List<SysMenuRole> list = new ArrayList<>();
@@ -70,7 +70,7 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
         return result;
     }
      
-    @ApiOperation("添加角色到菜单")
+    @Operation(summary = "添加角色到菜单")
     @PostMapping("/addRole")
     public BaseResponse<?> addRoleToMenu(@RequestBody SysMenuRole sysMenuRole) {
         try{
@@ -80,8 +80,8 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
         }
         return BaseResponse.ok("添加成功");
     }
-
-    @ApiOperation("添加角色列表到菜单")
+    //todo 修改
+    @Operation(summary = "添加角色列表到菜单")
     @PostMapping("/addRoles")
     public BaseResponse<?> addRolesToMenu(String menuId, List<String> roleIds) {
         if(null==roleIds || roleIds.size()==0 || null==menuId){
@@ -101,7 +101,7 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
         }
         return BaseResponse.ok("添加成功");
     }
-    @ApiOperation("移除菜单一角色")
+    @Operation(summary = "移除菜单一角色")
     @DeleteMapping("/removeRole")
     public BaseResponse<?> removeRoleFromMenu(String menuId,String roleId) {
         Map<String,Object> columnMap = new HashMap<>(8);
@@ -114,7 +114,7 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
         }
         return BaseResponse.ok("移除成功");
     }
-    @ApiOperation("清空菜单所有角色")
+    @Operation(summary = "清空菜单所有角色")
     @DeleteMapping("/clearRole")
     public BaseResponse<?> clearRoleFromUser(String menuId) {
         Map<String,Object> columnMap = new HashMap<>(8);

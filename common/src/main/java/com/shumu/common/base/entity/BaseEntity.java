@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * @author Li
  */
@@ -18,16 +18,16 @@ import lombok.EqualsAndHashCode;
 public class BaseEntity  implements Serializable {
     private static final long serialVersionUID = 1L;
     @TableId(type = IdType.ASSIGN_ID)
-    @ApiModelProperty(value ="主键",dataType ="String")
+    @Schema(title="主键",type="String")
     private String id;
-    @ApiModelProperty(value ="状态",dataType ="Integer")
+    @Schema(title ="状态",type ="Integer")
     private Integer status;
-    @ApiModelProperty(value ="创建者",dataType ="String")
+    @Schema(title ="创建者",type ="String")
     private String createBy;
-    @ApiModelProperty(value ="更新者",dataType ="String")
+    @Schema(title ="更新者",type ="String")
     private String updateBy;
-    @ApiModelProperty(value ="创建时间",dataType ="Date")
+    @Schema(title ="创建时间",type ="Date")
     private LocalDateTime createTime;
-    @ApiModelProperty(value ="更新时间",dataType ="Date")
+    @Schema(title ="更新时间",type ="Date")
     private LocalDateTime updateTime;
 }

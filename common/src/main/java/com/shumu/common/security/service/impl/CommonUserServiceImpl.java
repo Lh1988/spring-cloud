@@ -1,6 +1,7 @@
 package com.shumu.common.security.service.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import com.shumu.common.security.mapper.CommonUserMapper;
 import com.shumu.common.security.model.UserModel;
@@ -35,7 +36,7 @@ public class CommonUserServiceImpl implements ICommonUserService  {
     }
 
     @Override
-    public List<String> getPermissions(String userId) {
+    public List<Map<String,String>> getPermissions(String userId) {
         return commonUserMapper.getPermissions(userId);
     }
 

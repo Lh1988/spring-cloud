@@ -6,8 +6,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.AntPathMatcher;
@@ -63,8 +63,9 @@ public class CommonController {
 		}else{
 			savePath = UploadUtil.upload(file, bizPath, uploadType);
 		}
+
 		if(StringUtil.isNotEmpty(savePath)){
-			return BaseResponse.ok(savePath);
+			return BaseResponse.ok(savePath,"上传成功！");
 		}else{
 			return BaseResponse.error("上传失败！");
 		}

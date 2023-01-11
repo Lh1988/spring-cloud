@@ -1,0 +1,23 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.system.database.mapper.CreateTableMapper">
+   <update id="createTable" parameterType="TableModel" >
+   CREATE TABLE `boot`.`table_info` (
+  `id` VARCHAR(36) NOT NULL COMMENT '主键',
+  `table_name` VARCHAR(45) NULL COMMENT '表名',
+  `table_comment` VARCHAR(255) NULL COMMENT '表注释',
+  `table_type` INT NULL COMMENT '表类型',
+  `primary_key` VARCHAR(45) NULL DEFAULT 'id' COMMENT '主键名',
+  `id_type` INT NULL COMMENT '主键生成类型',
+  `id_sequence` VARCHAR(45) NULL COMMENT 'oracle序列',
+  `referenced_tables` VARCHAR(45) NULL COMMENT '关联表',
+  `data_update_time` DATETIME NULL COMMENT '更新时间',
+  `status` INT NULL DEFAULT '1' COMMENT '状态',
+  `create_by` VARCHAR(32) NULL COMMENT '创建者',
+  `create_time` DATETIME NULL COMMENT '创建时间',
+  `update_by` VARCHAR(32) NULL COMMENT '更新者',
+  `update_time` DATETIME NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`))
+COMMENT = '数据表信息';
+   </update>
+</mapper>
