@@ -32,12 +32,15 @@ mybatis:
   mapper-locations:
   - classpath*:com/shumu/**/mapper/xml/**Mapper.xml
   type-aliases-package: com/shumu/**/entity/;com/shumu/**/model/
+  
 mybatis-plus:
   mapper-locations:
   - classpath*:com/shumu/**/mapper/xml/**Mapper.xml
   type-aliases-package: com/shumu/**/entity/;com/shumu/**/model/
   global-config:
     banner: true
+  configuration:
+   database-id: mysql
 
 management:
   #actuator端口 如果不配置做默认使用上面8080端口

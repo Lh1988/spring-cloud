@@ -26,6 +26,7 @@ import com.shumu.common.office.excel.export.view.ExportXlsxView;
 import com.shumu.common.office.excel.imports.param.ImportParam;
 import com.shumu.common.office.excel.imports.util.ImportUtil;
 import com.shumu.common.query.util.QueryGenerator;
+import com.shumu.common.security.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -96,8 +97,11 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
      */
     @Operation(summary = "插入数据")
     @PostMapping(value = "/add")
-    public BaseResponse<?> add(@RequestBody T object) {
+    public BaseResponse<?> add(@RequestBody T object, HttpServletRequest req) {
         object.setCreateTime(LocalDateTime.now());
+        String token = JwtUtil.resolveToken(req);
+        String username = JwtUtil.getUsername(token);
+        object.setCreateBy(username);
         try {
             service.save(object);
             return BaseResponse.ok("添加成功!");

@@ -79,28 +79,8 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
             return BaseResponse.error("添加成失败");
         }
         return BaseResponse.ok("添加成功");
-    }
-    //todo 修改
-    @Operation(summary = "添加角色列表到菜单")
-    @PostMapping("/addRoles")
-    public BaseResponse<?> addRolesToMenu(String menuId, List<String> roleIds) {
-        if(null==roleIds || roleIds.size()==0 || null==menuId){
-            return BaseResponse.error("添加成失败");
-        }
-        List<SysMenuRole> entityList = new ArrayList<>();
-        for (String roleId : roleIds) {
-            SysMenuRole sysMenuRole = new SysMenuRole();
-            sysMenuRole.setMenuId(menuId);
-            sysMenuRole.setRoleId(roleId);
-            entityList.add(sysMenuRole);
-        }
-        try {
-            sysMenuRoleService.saveBatch(entityList);
-        } catch (Exception e) {
-            return BaseResponse.error("添加成失败");
-        }
-        return BaseResponse.ok("添加成功");
-    }
+     }
+
     @Operation(summary = "移除菜单一角色")
     @DeleteMapping("/removeRole")
     public BaseResponse<?> removeRoleFromMenu(String menuId,String roleId) {

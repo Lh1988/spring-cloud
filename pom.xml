@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.2</version>
     <relativePath/>
     <!-- lookup parent from repository -->
   </parent>
@@ -136,7 +136,7 @@
     <dependency>
       <groupId>com.baomidou</groupId>
       <artifactId>mybatis-plus-boot-starter</artifactId>
-      <version>3.5.2.7-SNAPSHOT</version>
+      <version>3.5.3.1</version>
     </dependency>
    <dependency>
       <groupId>org.springdoc</groupId>
@@ -181,11 +181,12 @@
   </dependencies>
   <!-- 使用aliyun代理 -->
   <repositories>
-     <!-- 使用aliyun代理 -->
+     <!--  
     <repository>
       <id>snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
+    -->
     <!-- 使用aliyun代理 -->
     <repository>
       <id>central</id>
@@ -206,6 +207,7 @@
   <modules>
     <module>common</module>
     <module>system</module>
+    <module>data</module>
   </modules>
   <!--
   <build>

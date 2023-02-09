@@ -274,9 +274,6 @@ public class LoginController {
 	    }
         String userId = JwtUtil.getUserId(token);
 	    if(StringUtil.isNotEmpty(userId)) {
-			//update-begin--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
-			//baseCommonService.addLog("用户名: "+sysUser.getRealname()+",退出成功！", CommonConstant.LOG_TYPE_1, null,sysUser);
-			//update-end--Author:wangshuai  Date:20200714  for：登出日志没有记录人员
             String username = JwtUtil.getUsername(token);
 	    	log.info(" 用户名:  "+username+",退出成功！ ");
 	    	//清空用户登录Token缓存
@@ -286,9 +283,4 @@ public class LoginController {
 	    	return BaseResponse.error("Token无效!");
 	    }
 	}
-
-
-
-
-
 }
