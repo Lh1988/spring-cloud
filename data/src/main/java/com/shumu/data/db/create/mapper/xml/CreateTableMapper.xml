@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.data.db.create.mapper.CreateTableMapper">
+    <!-- fieldDataType -->
+    <sql id="fieldDataType">
+        <choose>
+            <when test="field.fieldType==0">
+                DOUBLE(#{field.fieldLength},#{field.decimalDigits})
+            </when>
+            <when test="field.fieldType==1">
+                INT(#{field.fieldLength})
+            </when>
+            <when test="field.fieldType==2">
+                DECIMAL(#{field.fieldLength},#{field.decimalDigits})
+            </when>
+            <when test="field.fieldType==3">
+                VARCHAR(#{field.fieldLength})
+            </when>
+            <when test="field.fieldTypee==4">
+                TINYINT UNSIGNED
+            </when>
+            <when test="field.fieldType==5">
+                DATETIME
+            </when>
+            <when test="field.fieldType==6">
+                DATE
+            </when>
+            <when test="field.fieldType==7">
+                TIME
+            </when>
+            <when test="field.fieldTypee==8">
+                BOLB
+            </when>
+            <when test="field.fieldType==9">
+                TEXT
+            </when>
+            <otherwise/>
+        </choose>
+    </sql>
+    <!-- createTableB -->
+    <update id="createTable" parameterType="CreateTableModel" databaseId="mysql">
+       CREATE TABLE <if test="null != databaseName and '' != databaseName">${databaseName}.</if>${tableName} (
+       <foreach item="field" collection="fieldList" separator="," >
+       <if test="3!=field.status">
+            ${field.fieldName}
+            <include refid="fieldDataType">
+                <property name="field.fieldType" value="field.fieldType"/>
+                <property name="field.fieldLength" value="field.fieldLength"/>
+                <property name="field.decimalDigits" value="field.decimalDigits"/>
+            </include>
+            <if test="field.isNullable==0">
+            NOT NULL
+            </if>
+            <if test="field.isNullable==1">
+            NULL
+            </if>
+            <if test="field.defaultValue != null and field.defaultValue != ''">
+            DEFAULT ${field.defaultValue}
+            </if>
+            <if test="field.fieldComment != null and field.fieldComment != ''">
+            COMMENT '${field.fieldComment}'
+            </if>
+       </if>
+       </foreach>
+       <if test="null != indexList and indexList.size()!=0">
+            ,
+       </if>
+       <foreach item="index" collection="indexList" separator=",">
+       <if test="3!=index.status">
+           <if test="index.indexType == 0">
+           INDEX ${index.indexName}(${index.indexField}) USING BTREE
+           </if>
+           <if test="index.indexType == 1">
+           UNIQUE INDEX ${index.indexName}(${index.indexField}) USING BTREE
+           </if>
+           <if test="index.indexType == 2">
+           PRIMARY KEY (index.fieldName) USING BTREE
+           </if>
+       </if>
+       </foreach>
+       )
+       <if test="tableComment!=null and tableComment!=''">
+       COMMENT = '${tableComment}'
+       </if>
+    </update>
+    <!-- alterTable -->
+    <update id="alterTable" parameterType="CreateTableModel" databaseId="mysql">
+       ALTER TABLE ${oldName}
+       <foreach item="field" collection="fieldList" separator="," >
+       <if test="3==field.status">
+            DROP COLUMN ${field.oldName}
+       </if>
+       <if test="0==field.status or 2==field.status">
+            <if test="0==field.status">
+            ADD COLUMN ${field.fieldName}
+            </if>
+            <if test="2==field.status">
+            ADD COLUMN ${field.oldName} ${field.fieldName}
+            </if>
+            <include refid="fieldDataType">
+                <property name="field.fieldType" value="field.fieldType"/>
+                <property name="field.fieldLength" value="field.fieldLength"/>
+                <property name="field.decimalDigits" value="field.decimalDigits"/>
+            </include>
+            <if test="field.isNullable==0">
+            NOT NULL
+            </if>
+            <if test="field.isNullable==1">
+            NULL
+            </if>
+            <if test="field.defaultValue != null and field.defaultValue != ''">
+            DEFAULT ${field.defaultValue}
+            </if>
+            <if test="field.fieldComment != null and field.fieldComment != ''">
+            COMMENT '${field.fieldComment}'
+            </if>
+       </if>
+       </foreach>
+       <foreach item="index" collection="indexList">
+           <if test="index.status != 0 and index.indexType != 2">
+           ,DROP INDEX ${index.oldName}
+           </if>
+           <if test="index.status != 0 and index.indexType == 2">
+           ,DROP PRIMARY KEY
+           </if>
+           <if test="index.status != 3 and index.indexType == 0">
+           ,ADD INDEX ${index.indexName}(${index.indexField}) USING BTREE
+           </if>
+           <if test="index.status != 3 and index.indexType == 1">
+           ,ADD UNIQUE INDEX ${index.indexName}(${index.indexField}) USING BTREE
+           </if>  
+           <if test="index.status != 3 and index.indexType == 2">
+           ,ADD PRIMARY KEY (index.fieldName) USING BTREE
+           </if> 
+       </foreach>
+       <if test="tableName==oldName">
+           ,RENAME TO ${tableName}
+       </if>
+           ,COMMENT = '${tableComment}';
+    </update>
+    <!--ResultMap-->
+    <resultMap id="TableResult" type="CreateTableModel">
+        <id property="id" column="id" />
+        <collection property="fieldList" column="id" ofType="DataCreateField" select="getFields"/>
+        <collection property="indexList" column="id" ofType="DataCreateIndex" select="getIndexes"/>
+    </resultMap>
+    <!--获取创建表格所需信息-->
+    <select id="getTableModel" parameterType="string" resultMap="TableResult">
+      SELECT * FROM data_create_table WHERE id = #{tableId}
+    </select>
+    <select id="getFields" parameterType="string" resultType="DataTableField">
+      SELECT * FROM data_create_field WHERE table_id = #{tableId} ORDER BY order_num
+    </select>
+    <select id="getIndexes" parameterType="string" resultType="DataTableIndex">
+      SELECT * FROM data_create_index WHERE table_id = #{tableId} ORDER BY order_num
+    </select>
+    <!--删除表-->
+    <update id="dropTable" parameterType="string">
+       DROP TABLE IF EXISTS ${table}
+    </update>
+</mapper>

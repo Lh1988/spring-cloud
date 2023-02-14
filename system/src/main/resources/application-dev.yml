@@ -41,6 +41,7 @@ mybatis-plus:
     banner: true
   configuration:
    database-id: mysql
+   log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 management:
   #actuator端口 如果不配置做默认使用上面8080端口
