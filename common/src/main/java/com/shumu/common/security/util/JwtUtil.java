@@ -4,10 +4,10 @@ package com.shumu.common.security.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.shumu.common.security.authority.CommonGrantedAuthority;
 import com.shumu.common.security.constant.SecurityConstant;
@@ -15,6 +15,7 @@ import com.shumu.common.security.constant.SecurityConstant;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.jwt.JWT;
+import jakarta.servlet.http.HttpServletRequest;
 /**
 * @Description: JWT工具
 * @Author: Li
@@ -67,6 +68,13 @@ public class JwtUtil {
     }
 
     public static String getUsername(String token) {
+        JWT jwt = JWT.of(token);
+        return jwt.getPayload(SecurityConstant.USERNAME).toString();
+    }
+
+    public static String getUsername() {
+        HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        String token = resolveToken(req);
         JWT jwt = JWT.of(token);
         return jwt.getPayload(SecurityConstant.USERNAME).toString();
     }

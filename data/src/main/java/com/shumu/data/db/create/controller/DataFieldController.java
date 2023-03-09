@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.shumu.common.base.controller.BaseController;
 import com.shumu.common.base.response.BaseResponse;
+import com.shumu.common.util.StringUtil;
 import com.shumu.data.db.create.entity.DataCreateField;
 import com.shumu.data.db.create.service.IDataFieldService;
 
@@ -40,7 +41,28 @@ public class DataFieldController extends BaseController<DataCreateField, IDataFi
             return BaseResponse.error("删除失败");
         }    
     }
-
+    @Override
+    @DeleteMapping("/deleteBatch")
+    public BaseResponse<?> deleteBatch(@RequestParam(name = "ids") String ids) {
+        if(StringUtil.isNotEmpty(ids)){
+            String[] idArr = ids.split(",", 0);
+            List<DataCreateField> fields = new ArrayList<>();
+            for (String id : idArr) {
+                DataCreateField field = new DataCreateField();
+                field.setId(id);
+                field.setStatus(3);
+                fields.add(field);
+            }
+            try {
+                dataFieldService.updateBatchById(fields);
+                return BaseResponse.ok("批量删除成功");
+            } catch (Exception e) {
+                return BaseResponse.error("批量删除失败");
+            }  
+        } else {
+            return BaseResponse.error("批量删除失败");
+        } 
+    }
     @GetMapping("/order")
     public BaseResponse<?> orderField(@RequestParam(name = "ids") String ids) {
         String[] list = ids.split(",");
@@ -60,5 +82,18 @@ public class DataFieldController extends BaseController<DataCreateField, IDataFi
             return BaseResponse.error("移动失败");
         } 
     }
+    @GetMapping("/fields")
+    public BaseResponse<List<DataCreateField>> getDbFields(@RequestParam(name = "table") String table,@RequestParam(name = "database") String database) {
+        List<DataCreateField> dbFields = dataFieldService.getDbFields(table, database);
+        BaseResponse<List<DataCreateField>> result = new BaseResponse<>();
+        if(null==dbFields){
+           result.setSuccess(false);
+        } else {
+            result.setSuccess(true);
+            result.setResult(dbFields);
+        }
+        return result;  
+    }
+
 
 }

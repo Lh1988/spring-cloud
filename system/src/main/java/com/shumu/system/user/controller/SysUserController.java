@@ -53,28 +53,6 @@ public class SysUserController extends BaseController<SysUser,ISysUserService> {
         }
         return BaseResponse.ok("添加成功");
     }
-    @Operation(summary = "添加角色到用户")
-    @PostMapping("/addRoles")
-    public BaseResponse<?> addRolesToUser(@RequestBody Map<String,String> param) {
-        if(null==param || null==param.get("roleIds") || null==param.get("userId")){
-            return BaseResponse.error("添加成失败");
-        }
-        List<SysUserRole> entityList = new ArrayList<>();
-        String[] roleIds = param.get("roleIds").split(",", 0);
-        String userId = param.get("userId");
-        for (String roleId : roleIds) {
-            SysUserRole sysUserRole = new SysUserRole();
-            sysUserRole.setUserId(userId);
-            sysUserRole.setRoleId(roleId);
-            entityList.add(sysUserRole);
-        }
-        try {
-            sysUserRoleService.saveBatch(entityList);
-        } catch (Exception e) {
-            return BaseResponse.error("添加成失败");
-        }
-        return BaseResponse.ok("添加成功");
-    }
     @Operation(summary = "移除用户角色")
     @DeleteMapping("/removeRole")
     public BaseResponse<?> removeRoleFromUser(@RequestParam("userId") String userId, @RequestParam("roleId") String roleId) {
@@ -95,18 +73,6 @@ public class SysUserController extends BaseController<SysUser,ISysUserService> {
     public BaseResponse<?> removeRoleById(String id) {
         try {
             sysUserRoleService.removeById(id);
-        } catch (Exception e) {
-            return BaseResponse.error("移除失败");
-        }
-        return BaseResponse.ok("移除成功");
-    }
-    @Operation(summary = "清空用户所有角色")
-    @DeleteMapping("/clearRole")
-    public BaseResponse<?> clearRoleFromUser(String userId) {
-        Map<String,Object> columnMap = new HashMap<>(8);
-        columnMap.put("user_id", userId);
-        try {
-            sysUserRoleService.removeByMap(columnMap);
         } catch (Exception e) {
             return BaseResponse.error("移除失败");
         }

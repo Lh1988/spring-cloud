@@ -12,7 +12,7 @@ public class CellStyleParam {
     /**行高*/
     private Short height;
     /**列宽*/
-    private Short width;
+    private Short width = 15;
     /**单元格背景色*/
     private Short color;
     /**字体*/
@@ -22,13 +22,13 @@ public class CellStyleParam {
     /**字色*/
     private Short fontColor;
     /**斜体*/
-    private Boolean italic;
+    private Boolean italic = false;
     /**加粗*/
-    private Boolean bold;
+    private Boolean bold = false;
     /**下划线*/
     private Byte underline;
     /**换行*/
-    private Boolean warp;
+    private Boolean warp = false;
     /**数字格式*/
     private Short dataFormat;
     /**水平对齐*/

@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -127,33 +128,31 @@ public class ExportUtil {
         if (param.getColumns() == null || param.getColumns().isEmpty()) {
             return;
         }
-
         Sheet sheet = workbook.createSheet(param.getSheetName());
-
         int rowStartIndex = createSheet(workbook, sheet, param);
         int colStartIndex = param.getStartColumn();
 
-        CellStyle style = null;
-        if (param.getTableData() != null) {
-            style = ParamUtil.getCellStyleByParam(workbook, param.getTableData());
-        }
-
-        List<ColumnParam> columns = param.getColumns();
-
-        int dataStartRow = rowStartIndex;
-        int dataEndRow = rowStartIndex + data.size() - 1;
-        String dataType = data.get(0).getClass().getSimpleName();
-        if (dataType.contains(Map.class.getSimpleName())) {
-            for (int i = dataStartRow; i <= dataEndRow; i++) {
-                Row row = sheet.createRow(i);
-                Map<String, Object> value = (Map<String, Object>) data.get(i - dataStartRow);
-                createMapRow(row, columns, value, style, colStartIndex);
+        if (null != data && !data.isEmpty()) {
+            CellStyle style = null;
+            if (param.getTableData() != null) {
+                style = ParamUtil.getCellStyleByParam(workbook, param.getTableData());
             }
-        } else {
-            for (int i = dataStartRow; i <= dataEndRow; i++) {
-                Row row = sheet.createRow(i);
-                T value = data.get(i - dataStartRow);
-                createEntityRow(row, columns, value, style, colStartIndex);
+            List<ColumnParam> columns = param.getColumns();
+            int dataStartRow = rowStartIndex;
+            int dataEndRow = rowStartIndex + data.size() - 1;
+            String dataType = data.get(0).getClass().getSimpleName();
+            if (dataType.contains(Map.class.getSimpleName())) {
+                for (int i = dataStartRow; i <= dataEndRow; i++) {
+                    Row row = sheet.createRow(i);
+                    Map<String, Object> value = (Map<String, Object>) data.get(i - dataStartRow);
+                    createMapRow(row, columns, value, style, colStartIndex);
+                }
+            } else {
+                for (int i = dataStartRow; i <= dataEndRow; i++) {
+                    Row row = sheet.createRow(i);
+                    T value = data.get(i - dataStartRow);
+                    createEntityRow(row, columns, value, style, colStartIndex);
+                }
             }
         }
     }
@@ -289,7 +288,8 @@ public class ExportUtil {
         }
         for (int i = 0; i < columns.size(); i++) {
             if (columns.get(i).getWidth() != 0) {
-                sheet.setColumnWidth(colStart + i, columns.get(i).getWidth());
+                int width = (int) (columns.get(i).getWidth() + 0.72) * 256;
+                sheet.setColumnWidth(colStart + i, width);
             }
             Cell cell = row.createCell(colStart + i);
             cell.setCellValue(columns.get(i).getTitle());
@@ -325,6 +325,24 @@ public class ExportUtil {
                 e.printStackTrace();
             }
             value = getColumnValue(value, columns.get(i));
+            if (null == value) {
+                cell.setBlank();
+            } else if (value instanceof String) {
+                cell.setCellValue(value.toString());
+            } else if (value instanceof LocalDateTime) {
+                cell.setCellValue((LocalDateTime) value);
+            } else if (value instanceof Date) {
+                cell.setCellValue((Date) value);
+            } else if (value instanceof Boolean) {
+                cell.setCellValue((boolean) value);
+            } else if (value instanceof Integer) {
+                cell.setCellValue((int)value);
+            } else if (value instanceof Number) {
+                cell.setCellValue((double)value);
+            } else {
+                cell.setCellValue((RichTextString) value);
+            }
+
         }
     }
 
@@ -365,8 +383,8 @@ public class ExportUtil {
                 value = DateUtil.date2Str((Date) value, DateTimeFormatter.ofPattern(columnParam.getFormat()));
             }
         }
-        if (null != columnParam.getReplace() && !columnParam.getReplace().isEmpty()) {
-            Map<String, String> replaceMap = columnParam.getReplace();
+        if (null != columnParam.getExportReplace() && !columnParam.getExportReplace().isEmpty()) {
+            Map<String, String> replaceMap = columnParam.getExportReplace();
             value = replaceMap.get(value.toString());
         }
         if (null != columnParam.getPrefix() && !"".equals(columnParam.getPrefix())) {
@@ -396,13 +414,16 @@ public class ExportUtil {
                 columnParam.setSuffix(excel.suffix());
                 if (excel.replace().length > 0) {
                     String[] replaces = excel.replace();
-                    Map<String, String> map = new HashMap<>(16);
+                    Map<String, String> mapExport = new HashMap<>(16);
+                    Map<String, String> mapImport = new HashMap<>(16);
                     for (String replace : replaces) {
                         if (replace.contains(":")) {
-                            map.put(replace.split(":")[0].trim(), replace.split(":")[1]);
+                            mapExport.put(replace.split(":")[0].trim(), replace.split(":")[1]);
+                            mapImport.put(replace.split(":")[1].trim(), replace.split(":")[0]);
                         }
                     }
-                    columnParam.setReplace(map);
+                    columnParam.setExportReplace(mapExport);
+                    columnParam.setImportReplace(mapImport);
                 }
                 columnParam.setFormat(excel.format());
                 if (excel.width() > 0) {
@@ -439,11 +460,38 @@ public class ExportUtil {
         setDefaultBorder(headStyle);
         headStyle.setAlign(HorizontalAlignment.CENTER.getCode());
         param.setTableHead(headStyle);
-         /* 设置导出表数据单元格格式*/
-         CellStyleParam cellStyle = new CellStyleParam();
-         setDefaultBorder(cellStyle);
-         param.setTableData(cellStyle);
-         return param;
+        /* 设置导出表数据单元格格式 */
+        CellStyleParam cellStyle = new CellStyleParam();
+        setDefaultBorder(cellStyle);
+        param.setTableData(cellStyle);
+        return param;
+    }
+
+    public static ExportParam getDefaultMapExportParam(List<ColumnParam> columns) {
+        ExportParam param = new ExportParam();
+        param.setColumns(columns);
+        /* 设置导出表跨列合并的主标题title */
+        CellStyleParam firstTitleStyle = new CellStyleParam();
+        setDefaultBorder(firstTitleStyle);
+        firstTitleStyle.setAlign(HorizontalAlignment.CENTER.getCode());
+        param.setFirstTitle(firstTitleStyle);
+        param.setFirstTitleText("导出数据");
+        /* 设置导出表跨列合并的次级标题title */
+        CellStyleParam secondTitleStyle = new CellStyleParam();
+        setDefaultBorder(secondTitleStyle);
+        secondTitleStyle.setAlign(HorizontalAlignment.RIGHT.getCode());
+        param.setSecondTitle(secondTitleStyle);
+        param.setSecondTitleText("导出时间:" + LocalDateTime.now().format(DateTimeFormatter.BASIC_ISO_DATE));
+        /* 设置导出表表头head */
+        CellStyleParam headStyle = new CellStyleParam();
+        setDefaultBorder(headStyle);
+        headStyle.setAlign(HorizontalAlignment.CENTER.getCode());
+        param.setTableHead(headStyle);
+        /* 设置导出表数据单元格格式 */
+        CellStyleParam cellStyle = new CellStyleParam();
+        setDefaultBorder(cellStyle);
+        param.setTableData(cellStyle);
+        return param;
     }
 
     private static void setDefaultBorder(CellStyleParam excelStyleParam) {

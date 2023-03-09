@@ -46,38 +46,20 @@ public class DataTableController extends BaseController<DataCreateTable, IDataTa
     @Autowired
     private IDataIndexService dataIndexService;
 
-
     @Operation(summary = "获取数据库表信息")
-    @GetMapping("/table")
+    @GetMapping("/tables")
     public BaseResponse<List<DataCreateTable>> getDbTables(){
-        List<DataCreateTable> dbTable = dataTableService.getDbTables();
+        List<DataCreateTable> dbTables = dataTableService.getDbTables();
         BaseResponse<List<DataCreateTable>> result = new BaseResponse<>();
-        if(null==dbTable){
+        if(null==dbTables){
            result.setSuccess(false);
-           return result;
+        } else {
+            result.setSuccess(true);
+            result.setResult(dbTables);
         }
-        List<DataCreateTable> crTable = dataTableService.list();
-        if(null!=crTable && !crTable.isEmpty()){
-            String database = dataTableService.getCurrentDatabase();
-            for (DataCreateTable table:  dbTable) {
-                String tableName = table.getTableName();
-                String dbName = table.getDatabaseName();
-                for (DataCreateTable item : crTable) {
-                    if(tableName.equals(item.getTableName())||tableName.equals(item.getOldName())){
-                        boolean equal = dbName.equals(item.getDatabaseName());
-                        equal = equal ||(dbName.equals(database)&&StringUtil.isEmpty(item.getDatabaseName()));
-                        if(equal){
-                            table.setId(item.getId());
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        result.setSuccess(true);
-        result.setResult(dbTable);
         return result;        
     }
+
     @Operation(summary = "获取数据库表信息")
     @PostMapping("/addDbTable")
     public BaseResponse<?> addDbTableInfo(@RequestBody DataCreateTable table, HttpServletRequest req) {
@@ -91,8 +73,8 @@ public class DataTableController extends BaseController<DataCreateTable, IDataTa
         boolean success = dataTableService.save(table);
         if(success){
             String id = table.getId();
-            List<DataCreateIndex> indexes = dataTableService.getDbIndexes(table.getTableName(),table.getDatabaseName());
-            List<DataCreateField> fields = dataTableService.getDbFields(table.getTableName(),table.getDatabaseName());
+            List<DataCreateIndex> indexes = dataIndexService.getDbIndexes(table.getTableName(),table.getDatabaseName());
+            List<DataCreateField> fields = dataFieldService.getDbFields(table.getTableName(),table.getDatabaseName());
             if(null!=indexes){
                indexes.forEach(item->{
                 item.setTableId(id);

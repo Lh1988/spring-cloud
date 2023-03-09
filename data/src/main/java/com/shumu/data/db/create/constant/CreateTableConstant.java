@@ -18,4 +18,8 @@ public interface CreateTableConstant {
     public static final Integer INDEX_CREATED = 1;
     public static final Integer INDEX_CHANGED = 2;
     public static final Integer INDEX_DELETED = 3;
+
+    public static final Integer TYPE_NONE= 0;
+    public static final Integer TYPE_AUTO = 1;
+    public static final Integer TYPE_INPUT = 2;
 }

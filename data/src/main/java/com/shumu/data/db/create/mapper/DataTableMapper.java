@@ -2,12 +2,9 @@ package com.shumu.data.db.create.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.shumu.data.db.create.entity.DataCreateField;
-import com.shumu.data.db.create.entity.DataCreateIndex;
 import com.shumu.data.db.create.entity.DataCreateTable;
 /**
 * @description: mapper
@@ -26,18 +23,4 @@ public interface DataTableMapper extends BaseMapper<DataCreateTable> {
      * @return
      */
     public List<DataCreateTable> getDbTables();
-    /**
-     * getDbFields
-     * @param table
-     * @param database
-     * @return
-     */
-    public List<DataCreateField> getDbFields(@Param("table") String table,@Param("database") String database);
-    /**
-     * getDbIndexes
-     * @param table
-     * @param database
-     * @return
-     */
-    public List<DataCreateIndex> getDbIndexes(@Param("table") String table,@Param("database") String database);
 }

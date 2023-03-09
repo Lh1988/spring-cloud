@@ -145,7 +145,6 @@ public class ImportUtil {
         if (null != row) {
             List<ColumnParam> fields = importParam.getColumnParams();
             Map<Integer, ColumnParam> titleMap = getTitleMap(row, fields);
-
             while (rows.hasNext()) {
                 row = rows.next();
                 T entity = getEntityData(row, titleMap, entityClass, start, end);
@@ -261,7 +260,11 @@ public class ImportUtil {
      */
     private static Object getCellValue(ColumnParam fieldParam, Cell cell) {
         Object value = null;
-        switch (fieldParam.getField().getType().getSimpleName()) {
+        String type = fieldParam.getType();
+        if(null!=fieldParam.getField()){
+            type=fieldParam.getField().getType().getSimpleName();
+        }
+        switch (type) {
             case "Integer":
                 if (cell.getCellType() == CellType.NUMERIC) {
                     value = (int) cell.getNumericCellValue();
@@ -336,7 +339,7 @@ public class ImportUtil {
      * @return
      */
     public static Map<Integer, ColumnParam> getTitleMap(Row row, List<ColumnParam> params) {
-        Map<Integer, ColumnParam> map = new HashMap<>(params.size() * 2);
+        Map<Integer, ColumnParam> map = new HashMap<>(16);
         int start = row.getFirstCellNum();
         int end = row.getLastCellNum();
         int c = 0;
@@ -416,10 +419,10 @@ public class ImportUtil {
                 value = value.substring(prefix.length());
             }
         }
-        if (null != fieldParam.getReplace() && !fieldParam.getReplace().isEmpty()) {
-            Map<String, String> map = fieldParam.getReplace();
+        if (null != fieldParam.getImportReplace() && !fieldParam.getImportReplace().isEmpty()) {
+            Map<String, String> map = fieldParam.getImportReplace();
             if (map.containsKey(value)) {
-                value = map.get(value);
+               value = map.get(value);
             }
         }
         return value;

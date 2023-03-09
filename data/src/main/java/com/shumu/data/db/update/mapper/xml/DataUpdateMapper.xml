@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.data.db.update.mapper.DataUpdateMapper">
+  <insert id="batchInsertData">
+    INSERT INTO ${table}
+    <foreach item="field" collection="fields" open="(" separator="," close=")">
+      ${field}
+    </foreach>
+    VALUES
+    <foreach item="data" collection="datas" separator="," >
+      <foreach item="field" collection="fields" open="(" separator="," close=")">
+        #{data.${field}}
+      </foreach>
+    </foreach>
+  </insert>
+
+  <insert id="insertData">
+    INSERT INTO ${table}
+    <foreach item="field" collection="fields" open="(" separator="," close=")">
+      ${field}
+    </foreach>
+    VALUES
+    <foreach item="field" collection="fields" open="(" separator="," close=")">
+      #{data.${field}}
+    </foreach>
+  </insert>
+
+  <update id="updateDataById">
+    UPDATE ${table} SET
+    <foreach item="field" collection="fields" separator="," >
+      <if test="null == data.field">${field} = #{data.${field}}</if>
+    </foreach>
+    <where>
+      ${id} = #{data.${id}}
+    </where>
+  </update>
+
+  <update id="updateDataByFlag">
+    UPDATE ${table} SET
+    <foreach item="field" collection="fields" separator="," >
+      <if test="null == data.field">${field} = #{data.${field}}</if>
+    </foreach>
+    <where>
+      <foreach item="flag" collection="flags" separator=" AND " >
+        ${flag} = #{data.${flag}}
+      </foreach>
+    </where>
+  </update>
+  <select id = "getPrimaryKey" resultType = "string">
+    SELECT ${primaryKey} FROM ${tableName}
+    <where>
+      <foreach item="flag" collection="flags" separator=" AND " >
+        ${flag.key} = #{flag.value}
+     </foreach>
+    </where>
+  </select>
+</mapper>

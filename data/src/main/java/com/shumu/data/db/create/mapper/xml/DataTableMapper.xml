@@ -1,62 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shumu.data.db.create.mapper.DataTableMapper">
-    <!-- getDbTableFields -->
-    <select id="getDbFields" parameterType="string" resultType="DataCreateField" databaseId="mysql"> 
-      SELECT
-        COLUMN_NAME field_name,
-        COLUMN_COMMENT field_comment,
-        IF(IS_NULLABLE,1,0) is_nullable,
-        (
-           CASE DATA_TYPE
-           WHEN 'double' THEN 0  
-           WHEN 'int' THEN 1 
-           WHEN 'decimal' THEN 2
-           WHEN 'varchar' THEN 3
-           WHEN 'tinyint' THEN 4
-           WHEN 'datetime' THEN 5 
-           WHEN 'date' THEN 6
-           WHEN 'time' THEN 7
-           WHEN 'bolb' THEN 8
-           WHEN 'text' THEN 9
-           WHEN 'mediumtext' THEN 10
-           WHEN 'longtext' THEN 11
-           ELSE 12 END
-         ) field_type,
-         IFNULL(CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION) field_length,
-         NUMERIC_SCALE decimal_digits,
-         ORDINAL_POSITION order_num,
-         1 status
-      FROM
-        information_schema.columns
-        <where>
-            <if test="database!=null and database!=''">
-           TABLE_SCHEMA = #{database} AND
-            </if>
-           TABLE_NAME = #{table}
-        </where>
-      ORDER BY ORDINAL_POSITION
-    </select>
-    <!-- getDbTableIndexes -->
-    <select id="getDbIndexes" parameterType="string" resultType="DataCreateIndex" databaseId="mysql"> 
-      SELECT
-        INDEX_NAME indexName,
-        COLUMN_NAME indexField,
-        NON_UNIQUE indexType,
-        SEQ_IN_INDEX orderNum,
-        1 status
-      FROM
-        information_schema.statistics
-        <where>
-            <if test="database!=null and database!=''">
-           TABLE_SCHEMA = #{database} AND
-            </if>
-            <if test="table!=null and table!=''">
-           TABLE_NAME = #{table}
-            </if>
-        </where>
-      ORDER BY INDEX_NAME,SEQ_IN_INDEX
-    </select>
     <select id="getDbTables" resultType="DataCreateTable" databaseId="mysql">
       SELECT 
         TABLE_NAME tableName,

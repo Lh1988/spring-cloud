@@ -1,7 +1,10 @@
 package com.shumu.data.db.create.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,5 +39,17 @@ public class DataIndexController extends BaseController<DataCreateIndex, IDataIn
         } catch (Exception e) {
             return BaseResponse.error("删除失败");
         }    
+    }
+    @GetMapping("/indexes")
+    public BaseResponse<List<DataCreateIndex>> getDbFields(@RequestParam(name = "table") String table,@RequestParam(name = "database") String database) {
+        List<DataCreateIndex> dbIndexes= dataIndexService.getDbIndexes(table, database);
+        BaseResponse<List<DataCreateIndex>> result = new BaseResponse<>();
+        if(null==dbIndexes){
+           result.setSuccess(false);
+        } else {
+            result.setSuccess(true);
+            result.setResult(dbIndexes);
+        }
+        return result;  
     }
 }

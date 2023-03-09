@@ -51,7 +51,7 @@ public class QueryGenerator {
     /** 页面带有规则值查询，空格作为分隔符 */
     private static final String QUERY_SEPARATE_KEYWORD = " ";
     /** 高级查询前端传来的参数名 */
-    private static final String SUPER_QUERY_PARAMS = "superQueryParams";
+    private static final String SUPER_QUERY_PARAMS = "advanceQuery";
     /** 单引号 */
     public static final String SQL_SQ = "'";
     /** 排序列 */

@@ -17,11 +17,14 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper=false)
 @Schema(title= "表更新参数")
 public class DataUpdateTable extends BaseEntity {
-    @Schema(title= "对应表ID")
-    @Excel(name="对应表ID", width = 60)
-    private String tableId;
-    @Schema(title= "表别称")
-    @Excel(name="表别称", width = 60)
+    @Schema(title= "表名")
+    @Excel(name="表名", width = 60)
+    private String tableName;
+    @Schema(title= "数据库名")
+    @Excel(name="数据库名", width = 60)
+    private String databaseName;
+    @Schema(title= "更新标题")
+    @Excel(name="更新标题", width = 60)
     private String tableTitle;
     @Schema(title= "主键字段")
     @Excel(name="主键字段", width = 60)
@@ -29,12 +32,15 @@ public class DataUpdateTable extends BaseEntity {
     @Schema(title= "主键生成器")
     @Excel(name="主键生成器", width = 60)
     private Integer primaryKeyGenerator;
-    @Schema(title= "更新字段")
-    @Excel(name="更新字段", width = 60)
-    private String updateField;
+    @Schema(title= "主键生成序列")
+    @Excel(name="主键生成序列", width = 60)
+    private String primaryKeySequence;
+    @Schema(title= "更新标识字段")
+    @Excel(name="更新标识字段", width = 60)
+    private String updateFlagField;
     @Schema(title= "更新时间")
     @Excel(name="更新时间", width = 60)
-    private LocalDateTime updateTime;
+    private LocalDateTime lastUpdateTime ;
     @Schema(title= "是否SQL关联更新")
     @Excel(name="是否SQL关联更新", width = 60)
     private Boolean useSql;
@@ -43,7 +49,10 @@ public class DataUpdateTable extends BaseEntity {
     private String paramConfig;
     @Schema(title= "参数值记录")
     @Excel(name="参数值记录", width = 60)
-    private String updateParam;
+    private String lastUpdateResult;
+    @Schema(title= "更新字段")
+    @Excel(name="更新字段", width = 60)
+    private String updateFields;
     @Schema(title= "选择字段语句")
     @Excel(name="选择字段语句", width = 60)
     private String selectSql;
@@ -55,5 +64,5 @@ public class DataUpdateTable extends BaseEntity {
     private String whereSql;
     @Schema(title= "额外语句")
     @Excel(name="额外语句", width = 60)
-    private String groupSql;
+    private String otherSql;
 }

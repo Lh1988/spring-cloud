@@ -26,7 +26,7 @@ public class ExportXlsView<T> extends AbstractXlsView {
     @Override
     protected void buildExcelDocument(Map<String, Object> model, Workbook workbook, HttpServletRequest request,
             HttpServletResponse response) throws Exception {
-        String excelName = model.get(ExcelConstant.EXCEL_FILE_NAME).toString() + ExcelConstant.EXCEL_FILE_XLSX;
+        String excelName = model.get(ExcelConstant.EXCEL_FILE_NAME).toString() + ExcelConstant.EXCEL_FILE_XLS;
         ExportUtil.setResponse(response, excelName, request.getHeader("User-Agent"));
         ExportParam excelParam = (ExportParam) model.get(ExcelConstant.EXPORT_EXCEL_PARAM);
         ExportUtil.createExcel(workbook, excelParam, (List<T>) model.get(ExcelConstant.EXPORT_EXCEL_DATA));

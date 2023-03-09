@@ -85,11 +85,12 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
     @DeleteMapping("/removeRole")
     public BaseResponse<?> removeRoleFromMenu(String menuId,String roleId) {
         Map<String,Object> columnMap = new HashMap<>(8);
-        columnMap.put("menuId", menuId);
-        columnMap.put("roleId", roleId);
+        columnMap.put("menu_id", menuId);
+        columnMap.put("role_id", roleId);
         try {
             sysMenuRoleService.removeByMap(columnMap);
         } catch (Exception e) {
+            e.printStackTrace();
             return BaseResponse.error("移除失败");
         }
         return BaseResponse.ok("移除成功");

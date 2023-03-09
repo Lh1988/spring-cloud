@@ -16,7 +16,7 @@
             <when test="field.fieldType==3">
                 VARCHAR(#{field.fieldLength})
             </when>
-            <when test="field.fieldTypee==4">
+            <when test="field.fieldType==4">
                 TINYINT UNSIGNED
             </when>
             <when test="field.fieldType==5">
@@ -39,6 +39,16 @@
     </sql>
     <!-- createTableB -->
     <update id="createTable" parameterType="CreateTableModel" databaseId="mysql">
+       <bind name = "autoIncrement" value = "''"/>
+       <if test = "1==primaryKeyType">
+         <foreach item="index" collection="indexList">
+           <if test="3!=index.status">
+             <if test="index.indexType == 2">
+               <bind name = "autoIncrement" value = "index.indexField"/>
+             </if>
+           </if>
+         </foreach>
+       </if>
        CREATE TABLE <if test="null != databaseName and '' != databaseName">${databaseName}.</if>${tableName} (
        <foreach item="field" collection="fieldList" separator="," >
        <if test="3!=field.status">
@@ -53,6 +63,9 @@
             </if>
             <if test="field.isNullable==1">
             NULL
+            </if>
+            <if test="field.fieldName==autoIncrement">
+            AUTO_INCREMENT
             </if>
             <if test="field.defaultValue != null and field.defaultValue != ''">
             DEFAULT ${field.defaultValue}
@@ -74,7 +87,7 @@
            UNIQUE INDEX ${index.indexName}(${index.indexField}) USING BTREE
            </if>
            <if test="index.indexType == 2">
-           PRIMARY KEY (index.fieldName) USING BTREE
+           PRIMARY KEY (${index.indexField}) USING BTREE
            </if>
        </if>
        </foreach>
@@ -148,10 +161,10 @@
     <select id="getTableModel" parameterType="string" resultMap="TableResult">
       SELECT * FROM data_create_table WHERE id = #{tableId}
     </select>
-    <select id="getFields" parameterType="string" resultType="DataTableField">
+    <select id="getFields" parameterType="string" resultType="DataCreateField">
       SELECT * FROM data_create_field WHERE table_id = #{tableId} ORDER BY order_num
     </select>
-    <select id="getIndexes" parameterType="string" resultType="DataTableIndex">
+    <select id="getIndexes" parameterType="string" resultType="DataCreateIndex">
       SELECT * FROM data_create_index WHERE table_id = #{tableId} ORDER BY order_num
     </select>
     <!--删除表-->

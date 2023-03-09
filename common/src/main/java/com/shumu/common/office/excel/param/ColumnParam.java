@@ -28,7 +28,11 @@ public class ColumnParam {
     /** 后缀------------------ */
     private String suffix;
     /** 值替换---------------- */
-    private Map<String, String> replace;
+    private Map<String, String> importReplace;
+    /** 值替换---------------- */
+    private Map<String, String> exportReplace;
     /** 对应实体类字段--------- */
     private Field field;
+    /** 字段类型------------------ */
+    private String type;
 }

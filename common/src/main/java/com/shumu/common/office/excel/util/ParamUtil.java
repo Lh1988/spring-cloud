@@ -2,14 +2,11 @@ package com.shumu.common.office.excel.util;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.shumu.common.office.excel.annotation.Excel;
-import com.shumu.common.office.excel.param.CellStyleParam;
-import com.shumu.common.office.excel.param.ColumnParam;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -17,6 +14,10 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
+
+import com.shumu.common.office.excel.annotation.Excel;
+import com.shumu.common.office.excel.param.CellStyleParam;
+import com.shumu.common.office.excel.param.ColumnParam;
 /**
 * @Description: 
 * @Author: Li
@@ -44,13 +45,16 @@ public class ParamUtil {
             columnParam.setSuffix(excel.suffix());
             if (excel.replace().length > 0) {
                 String[] replaces = excel.replace();
-                Map<String, String> map = new HashMap<>(16);
+                Map<String, String> mapExport = new HashMap<>(16);
+                Map<String, String> mapImport = new HashMap<>(16);
                 for (String replace : replaces) {
                     if (replace.contains(":")) {
-                        map.put(replace.split(":")[0].trim(), replace.split(":")[1]);
+                        mapExport.put(replace.split(":")[0].trim(), replace.split(":")[1]);
+                        mapImport.put(replace.split(":")[1].trim(), replace.split(":")[0]);
                     }
                 }
-                columnParam.setReplace(map);
+                columnParam.setExportReplace(mapExport);
+                columnParam.setImportReplace(mapImport);
             }
             columnParam.setFormat(excel.format());
             if (excel.width() > 0) {
@@ -62,6 +66,7 @@ public class ParamUtil {
                     style.setWarp(excel.isWrap());
                 }
             }
+            return columnParam;
         }
         return null;
     }
@@ -91,6 +96,42 @@ public class ParamUtil {
         return list;
     }
 
+    public static Field[] getClassFields(Class<?> clazz) {
+        List<Field> list = new ArrayList<>();
+        Field[] fields;
+        do {
+            fields = clazz.getDeclaredFields();
+            Collections.addAll(list, fields);
+            clazz = clazz.getSuperclass();
+        } while (clazz != Object.class && clazz != null);
+        return list.toArray(fields);
+    }
+
+    public static List<ColumnParam> getColumnParamList(Class<?> clazz) {
+        List<Field> list = new ArrayList<>();
+        Field[] fields;
+        do {
+            fields = clazz.getDeclaredFields();
+            Collections.addAll(list, fields);
+            clazz = clazz.getSuperclass();
+        } while (clazz != Object.class && clazz != null);
+        boolean needOrder = false;
+        List<ColumnParam> columns = new ArrayList<>();
+        for (Field field : list) {
+            ColumnParam columnParam = getColumnParamByField(field);
+            if (columnParam != null) {
+                if (columnParam.getOrder() != 0) {
+                    needOrder = true;
+                }
+                columns.add(columnParam);
+            }
+        }
+        if (needOrder) {
+            columns.sort(Comparator.comparingInt(ColumnParam::getOrder));
+        }
+        return columns;
+    }
+    
     /**
      * 根据设置的参数获取poi的CellStyle
      * 

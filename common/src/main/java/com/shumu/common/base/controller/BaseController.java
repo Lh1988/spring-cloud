@@ -9,6 +9,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -25,8 +28,9 @@ import com.shumu.common.office.excel.export.view.ExportXlsView;
 import com.shumu.common.office.excel.export.view.ExportXlsxView;
 import com.shumu.common.office.excel.imports.param.ImportParam;
 import com.shumu.common.office.excel.imports.util.ImportUtil;
+import com.shumu.common.office.excel.param.ColumnParam;
+import com.shumu.common.office.excel.util.ParamUtil;
 import com.shumu.common.query.util.QueryGenerator;
-import com.shumu.common.security.util.JwtUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 
@@ -60,6 +64,12 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
     @Autowired
     private S service;
 
+    protected Class<T> getEntityClass() {
+        Type type = getClass().getGenericSuperclass();
+        Type trueType = ((ParameterizedType) type).getActualTypeArguments()[0];
+        return (Class<T>) trueType;
+    }
+
     /**
      * 获取对应实体类的page类型列表数据，前端分页表
      * 
@@ -88,7 +98,28 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
         result.setResult(pageList);
         return result;
     }
-
+ /**
+     * 根据查询条件获取全部查询结果列表
+     * 
+     * @param entity 查询用实体类对象
+     * @param req    查询参数
+     * @return
+     * @throws IllegalAccessException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     */
+    @Operation(summary = "根据查询条件获取全部查询结果列表")
+    @GetMapping(value = "/list")
+    public BaseResponse<List<T>> queryEntityList(T entity, HttpServletRequest req)
+            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+        BaseResponse<List<T>> result = new BaseResponse<>();
+        QueryWrapper<T> queryWrapper = QueryGenerator.initQueryWrapper(entity, req.getParameterMap());
+        List<T> list = service.list(queryWrapper);
+        result.setSuccess(true);
+        result.setMessage("查询成功!");
+        result.setResult(list);
+        return result;
+    }
     /**
      * 增
      * 
@@ -98,10 +129,6 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
     @Operation(summary = "插入数据")
     @PostMapping(value = "/add")
     public BaseResponse<?> add(@RequestBody T object, HttpServletRequest req) {
-        object.setCreateTime(LocalDateTime.now());
-        String token = JwtUtil.resolveToken(req);
-        String username = JwtUtil.getUsername(token);
-        object.setCreateBy(username);
         try {
             service.save(object);
             return BaseResponse.ok("添加成功!");
@@ -221,29 +248,6 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
         return result;
     }
 
-    /**
-     * 根据查询条件获取全部查询结果列表
-     * 
-     * @param entity 查询用实体类对象
-     * @param req    查询参数
-     * @return
-     * @throws IllegalAccessException
-     * @throws NoSuchMethodException
-     * @throws InvocationTargetException
-     */
-    @Operation(summary = "根据查询条件获取全部查询结果列表")
-    @GetMapping(value = "/list")
-    public BaseResponse<List<T>> queryEntityList(T entity, HttpServletRequest req)
-            throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        BaseResponse<List<T>> result = new BaseResponse<>();
-        QueryWrapper<T> queryWrapper = QueryGenerator.initQueryWrapper(entity, req.getParameterMap());
-        List<T> list = service.list(queryWrapper);
-        result.setSuccess(true);
-        result.setMessage("查询成功!");
-        result.setResult(list);
-        return result;
-    }
-
     @Operation(summary = "导出xls")
     @GetMapping("/export/xls")
     public ModelAndView exportXls(T object, HttpServletRequest request)
@@ -256,9 +260,8 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
         /* 3.配置导出Excel的参数 */
         /* 3.1.创建Excel的ModelAndView：xls格式 */
         ModelAndView mv = new ModelAndView(new ExportXlsView<T>());
-        ;
         /* 3.2.导出文件名 */
-        mv.addObject("fileName", "导出数据");
+        mv.addObject(ExcelConstant.EXCEL_FILE_NAME, "导出数据");
         /* 3.3.配置导出文件参数 */
         ExportParam exportParam = ExportUtil.getDefaultEntityExportParam(object);
         /* 5.向mv添加参数 */
@@ -279,9 +282,8 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
         /* 3.配置导出Excel的参数 */
         /* 3.1.创建Excel的ModelAndView：xlsx格式 */
         ModelAndView mv = new ModelAndView(new ExportXlsxView<T>());
-        ;
         /* 3.2.导出文件名 */
-        mv.addObject("fileName", "导出数据");
+        mv.addObject(ExcelConstant.EXCEL_FILE_NAME, "导出数据");
         /* 3.3.配置导出文件参数 */
         ExportParam exportParam = ExportUtil.getDefaultEntityExportParam(object);
         /* 5.向mv添加参数 */
@@ -292,7 +294,8 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
 
     @Operation(summary = "导入")
     @PostMapping(value = "/import")
-    public BaseResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response, Class<T> clazz) {
+    public BaseResponse<?> importExcel(HttpServletRequest request, HttpServletResponse response) {
+        Class<T> clazz = getEntityClass();
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
         for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
@@ -301,6 +304,8 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
             ImportParam param = new ImportParam();
             param.setTitleRows(2);
             param.setHeadRows(1);
+            List<ColumnParam> columnParams = ParamUtil.getColumnParamList(clazz);
+            param.setColumnParams(columnParams);
             try {
                 List<T> list = ImportUtil.importExcel(file.getInputStream(), param, clazz);
                 // 批量插入数据

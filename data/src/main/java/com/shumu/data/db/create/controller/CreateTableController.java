@@ -42,7 +42,7 @@ public class CreateTableController {
     @Autowired
     private IDataIndexService dataIndexService;
 
-        /**
+    /**
      * create table
      * 
      * @param id
@@ -76,7 +76,8 @@ public class CreateTableController {
                 dataTableService.updateById(tableInfo);
                 return BaseResponse.error("重建表失败,删除旧表");
             }
-            return BaseResponse.error("创建表失败");
+            throw e;
+            //return BaseResponse.error("创建表失败");
         }
     }
 
@@ -122,8 +123,6 @@ public class CreateTableController {
             return BaseResponse.error("删除失败");  
         }
     }
-
-    
 
     private BaseResponse<?> checkTable(String id) {
         /* 参数检验 */

@@ -18,7 +18,7 @@ public class SysMenu extends BaseEntity{
     @Schema(title= "上级ID")
     @Excel(name="上级ID", width = 60)
     private String pid;
-    @Schema(title= "菜单类型,0:菜单节点;1:路由;2:链接")
+    @Schema(title= "菜单类型,0:一级菜单;1:子菜单;2:链接")
     @Excel(name="菜单类型", width = 30)
     private Integer menuType;
     @Schema(title= "菜单标题")
