@@ -32,7 +32,7 @@ public class DataCreateField extends BaseEntity {
     @Excel(name="是否可空", width = 10)
     private Boolean isNullable;
     @Schema(title= "字段类型")
-    @Excel(name="字段类型", width = 10, replace = {"0:浮点数","1:整数","2:实数","3:字符串","4:布尔型","5:日期时间","6:日期","7:时间","8:对象","9:文本","10:中文本","11:长文本"})
+    @Excel(name="字段类型", width = 10, replace = {"0:浮点数","1:整数","2:定点数","3:字符串","4:布尔型","5:日期时间","6:日期","7:时间","8:对象","9:文本","10:中文本","11:长文本","12:长整型"})
     private Integer fieldType;
     @Schema(title= "字段长度")
     @Excel(name="字段长度", width = 10)

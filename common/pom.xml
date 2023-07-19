@@ -5,11 +5,28 @@
 	<parent>
 		<groupId>com.shumu</groupId>
 	    <artifactId>cloud</artifactId>
-	    <version>0.0.1-SNAPSHOT</version>
+	    <version>0.0.1</version>
 	</parent>
 	<groupId>com.shumu</groupId>
 	<artifactId>common</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 	<name>common</name>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**.*</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
 </project>

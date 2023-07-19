@@ -21,6 +21,7 @@
            WHEN 'text' THEN 9
            WHEN 'mediumtext' THEN 10
            WHEN 'longtext' THEN 11
+           WHEN 'longint' THEN 11
            ELSE 12 END
          ) field_type,
          IFNULL(CHARACTER_MAXIMUM_LENGTH,NUMERIC_PRECISION) field_length,

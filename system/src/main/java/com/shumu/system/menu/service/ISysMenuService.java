@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.shumu.common.base.service.BaseService;
 import com.shumu.system.menu.entity.SysMenu;
+import com.shumu.system.menu.model.SysMenuTree;
 /**
 * @description: 
 * @author: Li
@@ -16,5 +17,5 @@ public interface ISysMenuService extends BaseService<SysMenu>{
     * @date: 2022-11-26
     * @return List<SysMenu>
     */
-    public List<SysMenu> getMenuTree();
+    public List<SysMenuTree> getMenuTree();
 }

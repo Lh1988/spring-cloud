@@ -11,22 +11,22 @@ import com.shumu.data.db.update.entity.DataUpdateTable;
 * @date: 2023-02-14
 */
 public interface IDataUpdateService extends BaseService<DataUpdateTable> {
-      /**
-     * 
+    /**
+     * 插入数据
      * @param table
      * @param fields
      * @param data
      */
     public void insertData(String table,List<String> fields,Map<String,Object> data);
     /**
-     * 
+     * 批量插入数据
      * @param table
      * @param fields
      * @param datas
      */
     public void batchInsertData(String table,List<String> fields,List<Map<String,Object>> datas);
     /**
-     * 
+     * 更新数据
      * @param table
      * @param id
      * @param fields
@@ -34,7 +34,7 @@ public interface IDataUpdateService extends BaseService<DataUpdateTable> {
      */
     public void updateDataById(String table,String id,List<String> fields,Map<String,Object> data);
     /**
-     * 
+     * 更新数据
      * @param table
      * @param flags
      * @param fields
@@ -42,7 +42,7 @@ public interface IDataUpdateService extends BaseService<DataUpdateTable> {
      */
     public void updateDataByFlag(String table,List<String> flags,List<String> fields,Map<String,Object> data);
     /**
-     * 
+     * 获取主键
      * @param table
      * @param primary
      * @param flags

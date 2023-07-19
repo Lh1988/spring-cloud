@@ -40,7 +40,7 @@ public class UploadUtil {
                 if(CommonConstant.UPLOAD_TYPE_MINIO.equals(uploadType)){
                     dbPath = MinioUtil.upload(in,relativePath);
                 }else if(CommonConstant.UPLOAD_TYPE_OSS.equals(uploadType)){
-                    //ToDo dbPath = OssBootUtil.upload(in,relativePath);
+                    // TODO 文件数据库
                 }
             }
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class UploadUtil {
         if(CommonConstant.UPLOAD_TYPE_MINIO.equals(uploadType)){
             url = MinioUtil.upload(file,bizPath);
         }else{
-           // url = OssBootUtil.upload(file,bizPath);
+           // TODO 文件数据库
         }
         return url;
     }
@@ -116,7 +116,7 @@ public class UploadUtil {
         if(CommonConstant.UPLOAD_TYPE_MINIO.equals(uploadType)){
             url = MinioUtil.upload(file,bizPath,customBucket);
         }else{
-           // url = OssBootUtil.upload(file,bizPath,customBucket);
+           // TODO 文件数据库
         }
         return url;
     }

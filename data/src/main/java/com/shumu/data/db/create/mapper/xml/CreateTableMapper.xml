@@ -8,7 +8,7 @@
                 DOUBLE(#{field.fieldLength},#{field.decimalDigits})
             </when>
             <when test="field.fieldType==1">
-                INT(#{field.fieldLength})
+                INT(#{field.fieldLength}) <if test="field.decimalDigits==1">UNSIGNED</if>
             </when>
             <when test="field.fieldType==2">
                 DECIMAL(#{field.fieldLength},#{field.decimalDigits})
@@ -33,6 +33,15 @@
             </when>
             <when test="field.fieldType==9">
                 TEXT
+            </when>
+            <when test="field.fieldType==10">
+                MEDIUMTEXT
+            </when>
+            <when test="field.fieldType==11">
+                LONGTEXT
+            </when>
+            <when test="field.fieldType==12">
+                LONGINT <if test="field.decimalDigits==1">UNSIGNED</if>
             </when>
             <otherwise/>
         </choose>

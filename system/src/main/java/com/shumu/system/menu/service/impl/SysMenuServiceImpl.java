@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shumu.system.menu.entity.SysMenu;
 import com.shumu.system.menu.mapper.SysMenuMapper;
+import com.shumu.system.menu.model.SysMenuTree;
 import com.shumu.system.menu.service.ISysMenuService;
 /**
 * @description: 
@@ -19,7 +20,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper,SysMenu> imple
     @Autowired
     private SysMenuMapper sysMenuMapper;
     @Override
-    public List<SysMenu> getMenuTree() {
+    public List<SysMenuTree> getMenuTree() {
         return sysMenuMapper.getMenuTree();
     }
     

@@ -57,5 +57,4 @@ public class SysMenu extends BaseEntity{
     @Schema(title= "菜单描述")
     @Excel(name="菜单描述", width = 60)
     private String description;
-    private SysMenu[] children;
 }

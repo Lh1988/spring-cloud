@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import com.shumu.common.office.excel.imports.sax.SaxRowRead;
 import com.shumu.common.office.excel.imports.sax.SheetHandler;
 import com.shumu.common.office.excel.param.ColumnParam;
 import com.shumu.common.util.DateUtil;
+import com.shumu.common.util.StringUtil;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -81,6 +83,36 @@ public class ImportUtil {
             }
         }
 
+        return data;
+    }
+    /**
+     * 导入Excel数据获取Map列表
+     * 
+     * @param inputStream
+     * @param importParam
+     * @return
+     */
+    public static List<Map<String,Object>> importExcel(InputStream inputStream, ImportParam importParam) {
+        List<Map<String,Object>> data = new ArrayList<>();
+        Workbook workbook = null;
+        if (!(inputStream.markSupported())) {
+            inputStream = new PushbackInputStream(inputStream, 8);
+        }
+        try {
+            workbook = WorkbookFactory.create(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (workbook != null) {
+            Iterator<Sheet> sheets = workbook.sheetIterator();
+            while (sheets.hasNext()) {
+                Sheet sheet = sheets.next();
+                List<Map<String,Object>> list = getSheetMapData(sheet, importParam);
+                if (!list.isEmpty()) {
+                    list.forEach(item -> data.add(item));
+                }
+            }
+        }
         return data;
     }
 
@@ -269,8 +301,7 @@ public class ImportUtil {
                 if (cell.getCellType() == CellType.NUMERIC) {
                     value = (int) cell.getNumericCellValue();
                 } else {
-                    String val = getStringValue(cell);
-                    val = getInitialValue(fieldParam, val);
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
                     value = null == val ? null : Integer.parseInt(val);
                 }
                 break;
@@ -278,17 +309,23 @@ public class ImportUtil {
                 if (cell.getCellType() == CellType.NUMERIC) {
                     value = cell.getNumericCellValue();
                 } else {
-                    String val = getStringValue(cell);
-                    val = getInitialValue(fieldParam, val);
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
                     value = null == val ? null : Double.parseDouble(val);
+                }
+                break;
+            case "BigDecimal":
+                if (cell.getCellType() == CellType.NUMERIC) {
+                    value = cell.getNumericCellValue();
+                } else {
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
+                    value = null == val ? null : new BigDecimal(val);
                 }
                 break;
             case "Boolean":
                 if (cell.getCellType() == CellType.BOOLEAN) {
                     value = cell.getBooleanCellValue();
                 } else {
-                    String val = getStringValue(cell);
-                    val = getInitialValue(fieldParam, val);
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
                     value = null == val ? null : Boolean.parseBoolean(val);
                 }
                 break;
@@ -296,14 +333,10 @@ public class ImportUtil {
                 if (cell.getCellType() == CellType.NUMERIC) {
                     value = cell.getDateCellValue();
                 } else {
-                    String val = getStringValue(cell);
-                    val = getInitialValue(fieldParam, val);
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
                     if (null != val) {
-                        if (null != fieldParam.getFormat() && !"".equals(fieldParam.getFormat())) {
-                            value = DateUtil.str2Date(val, DateTimeFormatter.ofPattern(fieldParam.getFormat()));
-                        } else {
-                            value = DateUtil.str2Date(val);
-                        }
+                        String format = StringUtil.isNotEmpty(fieldParam.getFormat())?fieldParam.getFormat():"yyyy-MM-dd HH:mm:ss";
+                        value = DateUtil.str2Date(val, DateTimeFormatter.ofPattern(format));
                     }
                 }
                 break;
@@ -311,19 +344,26 @@ public class ImportUtil {
                 if (cell.getCellType() == CellType.NUMERIC) {
                     value = cell.getLocalDateTimeCellValue();
                 } else {
-                    String val = getStringValue(cell);
-                    val = getInitialValue(fieldParam, val);
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
                     if (null != val) {
-                        if (null != fieldParam.getFormat() && !"".equals(fieldParam.getFormat())) {
-                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(fieldParam.getFormat());
-                            value = DateUtil.str2LocalDateTime(val, formatter);
-                        }
+                        String format = StringUtil.isNotEmpty(fieldParam.getFormat())?fieldParam.getFormat():"yyyy-MM-dd HH:mm:ss";
+                        value = DateUtil.str2LocalDateTime(val, DateTimeFormatter.ofPattern(format));
+                    }
+                }
+                break;
+            case "LocalDate":
+                if (cell.getCellType() == CellType.NUMERIC) {
+                    value = cell.getLocalDateTimeCellValue();
+                } else {
+                    String val = getInitialValue(fieldParam, getStringValue(cell));
+                    if (null != val) {
+                        String format = StringUtil.isNotEmpty(fieldParam.getFormat())?fieldParam.getFormat():"yyyy-MM-dd";
+                        value = DateUtil.str2LocalDate(val, DateTimeFormatter.ofPattern(format));
                     }
                 }
                 break;
             case "String":
-                String val = getStringValue(cell);
-                value = getInitialValue(fieldParam, val);
+                value = getInitialValue(fieldParam, getStringValue(cell));
                 break;
             default:
                 break;

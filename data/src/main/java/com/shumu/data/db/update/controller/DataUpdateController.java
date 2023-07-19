@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -34,7 +33,6 @@ import com.shumu.common.office.excel.param.ColumnParam;
 import com.shumu.common.util.StringUtil;
 import com.shumu.data.db.create.entity.DataCreateField;
 import com.shumu.data.db.create.service.IDataFieldService;
-import com.shumu.data.db.create.service.IDataTableService;
 import com.shumu.data.db.update.entity.DataUpdateTable;
 import com.shumu.data.db.update.generator.CommonIdGenerator;
 import com.shumu.data.db.update.service.IDataUpdateService;
@@ -53,67 +51,71 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/data/db/update")
 public class DataUpdateController extends BaseController<DataUpdateTable, IDataUpdateService> {
     @Autowired
-    private IDataTableService dataTableService;
-    @Autowired
     private IDataFieldService dataFieldService;
     @Autowired
     private IDataUpdateService dataUpdateService;
     @Autowired
-    private SqlSessionTemplate sqlSessionTemplate; 
+    private SqlSessionTemplate sqlSessionTemplate;
+
+    private static final String ID_STRING = "id";
+    private static final String SELECT_STRING = "select";
+    private static final String FROM_STRING = "from";
+    private static final String WHERE_STRING = "where";
+
     @Operation(summary = "关联")
     @PostMapping(value = "/referenced")
-    public BaseResponse<?> updateByReferenced(@RequestBody Map<String,Object> map) {
-        if(null==map.get("id")){
+    public BaseResponse<?> updateByReferenced(@RequestBody Map<String, Object> map) {
+        if (null == map.get(ID_STRING)) {
             return BaseResponse.error("参数id不能问空!");
         }
-        DataUpdateTable update = dataUpdateService.getById(map.get("id").toString());
-        if(null==update){
+        DataUpdateTable update = dataUpdateService.getById(map.get(ID_STRING).toString());
+        if (null == update) {
             return BaseResponse.error("无对应数据表更新信息!");
         }
         String table = update.getTableName();
-        if(StringUtil.isNotEmpty(update.getDatabaseName())){
-            table = update.getDatabaseName()+"."+update.getTableName();
+        if (StringUtil.isNotEmpty(update.getDatabaseName())) {
+            table = update.getDatabaseName() + "." + update.getTableName();
         }
-        String sql = "INSERT INTO "+ table;
+        String sql = "INSERT INTO " + table;
         String fields = update.getUpdateFields();
-        if(StringUtil.isNotEmpty(fields)){
-           sql += " ("+ fields +") ";
+        if (StringUtil.isNotEmpty(fields)) {
+            sql += " (" + fields + ") ";
         }
         String select = update.getSelectSql();
-        if(StringUtil.isEmpty(select)){
-           return BaseResponse.error("SQL语句不全!");
+        if (StringUtil.isEmpty(select)) {
+            return BaseResponse.error("SQL语句不全!");
         }
-        if(!select.startsWith("select") && !select.startsWith("SELECT")){
+        if (!select.startsWith(SELECT_STRING) && !select.startsWith(SELECT_STRING.toUpperCase())) {
             select = "SELECT " + select;
         }
         String from = update.getFromSql();
-        if(StringUtil.isEmpty(from)){
+        if (StringUtil.isEmpty(from)) {
             return BaseResponse.error("SQL语句不全!");
-         }
-        if(!from.startsWith("from") && !from.startsWith("FROM")){
+        }
+        if (!from.startsWith(FROM_STRING) && !from.startsWith(FROM_STRING.toUpperCase())) {
             from = "FROM " + from;
         }
-        sql += " "+ select + " " + from;
+        sql += " " + select + " " + from;
         String where = update.getWhereSql();
-        if(StringUtil.isNotEmpty(where)){
-            if(!where.startsWith("where") && !where.startsWith("WHERE")){
+        if (StringUtil.isNotEmpty(where)) {
+            if (!where.startsWith(WHERE_STRING) && !where.startsWith(WHERE_STRING.toUpperCase())) {
                 where = "WHERE " + where;
             }
-            sql += " "+ where;
+            sql += " " + where;
         }
         String other = update.getOtherSql();
-        if(StringUtil.isNotEmpty(other)){
-            sql += " "+ other;
+        if (StringUtil.isNotEmpty(other)) {
+            sql += " " + other;
         }
-        sql += " "+ select + " " + from + " " + where  + " " + other;
-        Map<String,Object> param = new HashMap<>(8);
+        sql += " " + select + " " + from + " " + where + " " + other;
+        Map<String, Object> param = new HashMap<>(8);
         for (String key : map.keySet()) {
-            String sKey = "${"+key+"}";
-            if(sql.indexOf(sKey)>0){
+            String sKey = "${" + key + "}";
+            if (sql.indexOf(sKey) > 0) {
                 sql = sql.replace(sKey, map.get(key).toString());
             }
-            String vKey = "#{"+key+"}";
-            if(sql.indexOf(vKey)>0){
+            String vKey = "#{" + key + "}";
+            if (sql.indexOf(vKey) > 0) {
                 param.put(key, map.get(key));
             }
         }
@@ -125,128 +127,140 @@ public class DataUpdateController extends BaseController<DataUpdateTable, IDataU
         }
         return BaseResponse.ok("更新成功！");
     }
+
     @Operation(summary = "导入")
     @PostMapping(value = "/excel")
     public BaseResponse<?> updateByExcel(HttpServletRequest request) {
         MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
         Map<String, MultipartFile> fileMap = multipartRequest.getFileMap();
         for (Map.Entry<String, MultipartFile> entity : fileMap.entrySet()) {
-            // 获取上传文件对象
             MultipartFile file = entity.getValue();
-            if(null==file){
+            if (null == file) {
                 return BaseResponse.error("文件上传失败!");
             }
             String fileName = file.getOriginalFilename();
-            String updateId = fileName.substring(fileName.indexOf("_")+1, fileName.lastIndexOf("."));
-            if(StringUtil.isEmpty(updateId)){
+            String updateId = fileName.substring(fileName.indexOf("_") + 1, fileName.lastIndexOf("."));
+            if (StringUtil.isEmpty(updateId)) {
                 return BaseResponse.error("文件上传错误!");
             }
             DataUpdateTable update = dataUpdateService.getById(updateId);
-            if(null==update){
+            if (null == update) {
                 return BaseResponse.error("模板名称与数据表不对应!");
             }
-            ImportParam importParam = getImportParam(update);
-            if(null==importParam){
-                return BaseResponse.error("数据表不存在!");
-            }
+            BaseResponse<?> response = upload(update, file);
+            return response;
+        }
+        return BaseResponse.error("文件导入失败!");
+    }
+
+    private BaseResponse<?> upload(DataUpdateTable update, MultipartFile file) {
+        ImportParam importParam = getImportParam(update);
+        try {
+            List<Map<String, Object>> list = ImportUtil.importExcel(file.getInputStream(), importParam);
             String databaseId = sqlSessionTemplate.getConfiguration().getDatabaseId();
-            CommonIdGenerator idGenerator = new CommonIdGenerator(databaseId,update.getPrimaryKeyGenerator(),update.getPrimaryKeySequence());
-            String databaseName = update.getDatabaseName();
-            String tableName = update.getTableName();
+            CommonIdGenerator idGenerator = new CommonIdGenerator(databaseId, update.getPrimaryKeyGenerator(),
+                    update.getPrimaryKeySequence());
+            String table = StringUtil.isNotEmpty(update.getDatabaseName())
+                    ? update.getDatabaseName() + "." + update.getTableName()
+                    : update.getTableName();
             String primaryKey = update.getPrimaryKey();
             String[] flagFields = null;
             if (StringUtil.isNotEmpty(update.getUpdateFlagField())) {
                 flagFields = update.getUpdateFlagField().split(",");
             }
-            try {                
-                List<Map> list = ImportUtil.importExcel(file.getInputStream(), importParam, Map.class);
-                List<Map<String, Object>> insert = new ArrayList<>();
-                List<Map<String, Object>> idUpdate = new ArrayList<>();
-                List<Map<String, Object>> fieldUpdate = new ArrayList<>();
-                for (Map<String, Object> map : list) {
-                    if (null == map.get(primaryKey)) {
-                        if (null != flagFields) {
-                            boolean isNull = false;
-                            for (String field : flagFields) {
-                                if (null == map.get(field)) {
-                                    isNull = true;
-                                    break;
-                                }
-                            }
-                            if (!isNull) {
-                                fieldUpdate.add(map);
-                                continue;
+            List<Map<String, Object>> insert = new ArrayList<>(), idUpdate = new ArrayList<>(),
+                    fieldUpdate = new ArrayList<>();
+            for (Map<String, Object> map : list) {
+                if (null == map.get(primaryKey)) {
+                    if (null != flagFields) {
+                        boolean isNull = false;
+                        for (String field : flagFields) {
+                            if (null == map.get(field)) {
+                                isNull = true;
+                                break;
                             }
                         }
+                        if (!isNull) {
+                            fieldUpdate.add(map);
+                            continue;
+                        }
+                    }
+                    map.put(primaryKey, idGenerator.getId());
+                    insert.add(map);
+                } else {
+                    idUpdate.add(map);
+                }
+            }
+            if (!fieldUpdate.isEmpty() && null != flagFields) {
+                for (Map<String, Object> map : fieldUpdate) {
+                    List<Map<String, Object>> flagList = new ArrayList<>();
+                    for (String field : flagFields) {
+                        Map<String, Object> flagMap = new HashMap<>(8);
+                        flagMap.put("key", field);
+                        flagMap.put("value", map.get(field));
+                        flagList.add(flagMap);
+                    }
+                    List<String> ids = dataUpdateService.getPrimaryKey(table, primaryKey, flagList);
+                    if (null != ids && 1 == ids.size()) {
+                        String id = ids.get(0);
+                        map.put(primaryKey, id);
+                        idUpdate.add(map);
+                    } else {
                         map.put(primaryKey, idGenerator.getId());
                         insert.add(map);
-                    } else {
-                        idUpdate.add(map);
                     }
                 }
-                if (StringUtil.isNotEmpty(databaseName)) {
-                    tableName = databaseName + "." + tableName;
-                }
-                if (!fieldUpdate.isEmpty() && null != flagFields) {
-                    for (Map<String, Object> map : fieldUpdate) {
-                        List<Map<String, Object>> flagList = new ArrayList<>();
-                        for (String field : flagFields) {
-                            Map<String, Object> flagMap = new HashMap<>(8);
-                            flagMap.put("key", field);
-                            flagMap.put("value", map.get(field));
-                            flagList.add(flagMap);
-                        }
-                        List<String> ids = dataUpdateService.getPrimaryKey(tableName, primaryKey, flagList);
-                        if (null != ids && 1 == ids.size()) {
-                            String id = ids.get(0);
-                            map.put(primaryKey, id);
-                            idUpdate.add(map);
-                        } else {
-                            map.put(primaryKey, idGenerator.getId());
-                            insert.add(map);
-                        }
-                    }
 
-                }
-                List<String> fieldNames = new ArrayList<>();
-                List<ColumnParam> columnParams = importParam.getColumnParams();
-                for (ColumnParam columnParam : columnParams) {
-                    fieldNames.add(columnParam.getKey());
-                }
-                long size = 0;
-                if (!insert.isEmpty()) {
-                    dataUpdateService.batchInsertData(tableName, fieldNames, insert);
-                    size+=insert.size();
-                }
-                long err = 0;
-                if (!idUpdate.isEmpty()) {
-                    for (Map<String, Object> map : idUpdate) {
-                      try {
-                        dataUpdateService.updateDataById(tableName, primaryKey, fieldNames, map);
-                        size++;
-                      } catch (Exception e) {
-                        err++;
-                      }  
-                    }
-                }
-                update.setLastUpdateTime(LocalDateTime.now());
-                update.setLastUpdateResult("导入excel数据"+size+"条，更新失败"+err+"条");
-                dataUpdateService.updateById(update);
-                return BaseResponse.ok("文件导入成功!数据行数:" + +size+"条");
-            } catch (Exception e) {
-                return BaseResponse.error("文件导入失败:" + e.getMessage());
-            } finally {
+            }
+            List<String> fieldNames = new ArrayList<>();
+            List<ColumnParam> columnParams = importParam.getColumnParams();
+            for (ColumnParam columnParam : columnParams) {
+                fieldNames.add(columnParam.getKey());
+            }
+            String msg = saveOrUpdate(insert, idUpdate, table, primaryKey, fieldNames);
+            update.setLastUpdateTime(LocalDateTime.now());
+            update.setLastUpdateResult(msg);
+            dataUpdateService.updateById(update);
+            return BaseResponse.ok("文件导入成功!" + msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BaseResponse.error("文件导入失败:" + e.getMessage());
+        } finally {
+            try {
+                file.getInputStream().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String saveOrUpdate(List<Map<String, Object>> insert, List<Map<String, Object>> idUpdate, String table,
+            String primaryKey, List<String> fieldNames) {
+        long size = 0;
+        if (!insert.isEmpty()) {
+            int n = 0;
+            while (insert.size() > n) {
+                dataUpdateService.batchInsertData(table, fieldNames,
+                        insert.subList(n, n + 1000 > insert.size() ? insert.size() : n + 1000));
+                n += 1000;
+            }
+            size += insert.size();
+        }
+        long err = 0;
+        if (!idUpdate.isEmpty()) {
+            for (Map<String, Object> map : idUpdate) {
                 try {
-                    file.getInputStream().close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    dataUpdateService.updateDataById(table, primaryKey, fieldNames, map);
+                    size++;
+                } catch (Exception e) {
+                    err++;
                 }
             }
         }
-        return BaseResponse.error("文件导入失败!");
+        return "导入excel数据" + size + "条，更新失败" + err + "条";
     }
 
-    private ImportParam getImportParam(DataUpdateTable update){
+    private ImportParam getImportParam(DataUpdateTable update) {
         String databaseName = update.getDatabaseName();
         String tableName = update.getTableName();
         List<DataCreateField> fields = dataFieldService.getDbFields(tableName, databaseName);
@@ -255,7 +269,7 @@ public class DataUpdateController extends BaseController<DataUpdateTable, IDataU
         }
         ImportParam importParam = new ImportParam();
         List<ColumnParam> columnParams = new ArrayList<>();
-        
+
         for (DataCreateField field : fields) {
             ColumnParam columnParam = new ColumnParam();
             columnParam.setKey(field.getFieldName());
@@ -269,41 +283,43 @@ public class DataUpdateController extends BaseController<DataUpdateTable, IDataU
         importParam.setHeadRows(1);
         return importParam;
     }
-    private String getJavaType(int type){
-       String name = "String";
-       switch (type) {
-        case 0:
-            name = "Double";
-            break;
-        case 1:
-            name = "Integer";
-            break;
-        case 2:
-            name = "BigDecimal";
-            break;
-        case 3:
-            name = "String";
-            break;
-        case 4:
-            name = "Integer";
-            break;
-        case 5:
-            name = "LocalDateTime";
-            break;
-        case 6:
-            name = "LocalDate";
-            break;
-        case 7:
-            name = "Time";
-            break;
-        case 8:
-            name = "String";
-            break;
-        default:
-            break;
-       }
-       return name;
+
+    private String getJavaType(int type) {
+        String name = "String";
+        switch (type) {
+            case 0:
+                name = "Double";
+                break;
+            case 1:
+                name = "Integer";
+                break;
+            case 2:
+                name = "BigDecimal";
+                break;
+            case 3:
+                name = "String";
+                break;
+            case 4:
+                name = "Integer";
+                break;
+            case 5:
+                name = "LocalDateTime";
+                break;
+            case 6:
+                name = "LocalDate";
+                break;
+            case 7:
+                name = "Time";
+                break;
+            case 8:
+                name = "String";
+                break;
+            default:
+                break;
+        }
+        return name;
     }
+
     @Operation(summary = "导出导数模板")
     @GetMapping("/template/{id}")
     public ModelAndView exportXls(@PathVariable("id") String id, HttpServletRequest request)
@@ -317,9 +333,9 @@ public class DataUpdateController extends BaseController<DataUpdateTable, IDataU
         for (DataCreateField field : fields) {
             ColumnParam columnParam = new ColumnParam();
             columnParam.setKey(field.getFieldName());
-            int width = null!=field.getFieldLength()?field.getFieldLength():0;
-            width = width>15?width:15;
-            width = width>75?75:width;
+            int width = null != field.getFieldLength() ? field.getFieldLength() : 0;
+            width = width > 15 ? width : 15;
+            width = width > 75 ? 75 : width;
             columnParam.setWidth(width);
             columnParam.setTitle(field.getFieldComment());
             columnParam.setOrder(field.getOrderNum());

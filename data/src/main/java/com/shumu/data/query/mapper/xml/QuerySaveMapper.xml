@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shumu.data.query.mapper.QuerySaveMapper">
+    <!--ResultMap-->
+    <resultMap id="QuerySaveResult" type="QuerySaveModel">
+        <id property="id" column="id" />
+        <collection property="selections" column="id" ofType="DataQuerySaveSelect" select="getSelections"/>
+        <collection property="condtions" column="id" ofType="DataQuerySaveCondition" select="getConditions"/>
+    </resultMap>
+    <!--获取创建表格所需信息-->
+    <select id="getQuerySaveModel" parameterType="string" resultMap="QuerySaveResult">
+      SELECT * FROM data_query_save WHERE id = #{id}
+    </select>
+    <select id="getSelections" parameterType="string" resultType="DataQuerySaveSelect">
+      SELECT * FROM data_query_save_select WHERE query_id = #{id}
+    </select>
+    <select id="getConditions" parameterType="string" resultType="DataQuerySaveCondition">
+      SELECT * FROM data_query_save_condtion WHERE query_id = #{id}
+    </select>
+</mapper>

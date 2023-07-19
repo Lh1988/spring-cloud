@@ -17,6 +17,7 @@ import com.shumu.common.base.controller.BaseController;
 import com.shumu.common.base.response.BaseResponse;
 import com.shumu.system.menu.entity.SysMenu;
 import com.shumu.system.menu.entity.SysMenuRole;
+import com.shumu.system.menu.model.SysMenuTree;
 import com.shumu.system.menu.service.ISysMenuRoleService;
 import com.shumu.system.menu.service.ISysMenuService;
 
@@ -39,13 +40,13 @@ public class SysMenuController extends BaseController<SysMenu,ISysMenuService>{
     @Operation(summary = "菜单Tree")
     @GetMapping("/tree")
     public BaseResponse<?> getMenuTree() {
-        List<SysMenu> list = new ArrayList<>();
+        List<SysMenuTree> list = new ArrayList<>();
         try{
             list = sysMenuService.getMenuTree();
         } catch (Exception e) {
             return BaseResponse.error("数据获取失败");
         }
-        BaseResponse<List<SysMenu>> result = new BaseResponse<>();
+        BaseResponse<List<SysMenuTree>> result = new BaseResponse<>();
         result.setSuccess(true);
         result.setMessage("数据查询成功!");
         result.setResult(list);

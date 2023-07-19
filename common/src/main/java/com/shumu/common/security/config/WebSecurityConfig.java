@@ -42,8 +42,8 @@ public class WebSecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter(), AuthorizationFilter.class)
-                .sessionManagement().disable()
-                .csrf().disable();
+                .sessionManagement(e->e.disable())
+                .csrf(e->e.disable());
         return http.build();
     }
 

@@ -141,7 +141,8 @@ public class ExportUtil {
             int dataStartRow = rowStartIndex;
             int dataEndRow = rowStartIndex + data.size() - 1;
             String dataType = data.get(0).getClass().getSimpleName();
-            if (dataType.contains(Map.class.getSimpleName())) {
+            //dataType.contains(Map.class.getSimpleName())
+            if (dataType.equals(Map.class.getSimpleName())) {
                 for (int i = dataStartRow; i <= dataEndRow; i++) {
                     Row row = sheet.createRow(i);
                     Map<String, Object> value = (Map<String, Object>) data.get(i - dataStartRow);

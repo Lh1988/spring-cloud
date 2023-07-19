@@ -64,6 +64,7 @@ public class BaseController<T extends BaseEntity, S extends IService<T>> {
     @Autowired
     private S service;
 
+    @SuppressWarnings("unchecked")
     protected Class<T> getEntityClass() {
         Type type = getClass().getGenericSuperclass();
         Type trueType = ((ParameterizedType) type).getActualTypeArguments()[0];

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.shumu.system.menu.entity.SysMenu;
+import com.shumu.system.menu.model.SysMenuTree;
 /**
 * @description: 
 * @author: Li
@@ -14,7 +15,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
      * get
      * @author: Li
      * @date: 2022-08-28
-     * @return List<SysMenu> 
+     * @return List<SysMenuTree> 
      */
-    public List<SysMenu> getMenuTree();
+    public List<SysMenuTree> getMenuTree();
 }

@@ -1,5 +1,6 @@
 package com.shumu.data.map.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.shumu.common.base.entity.BaseEntity;
 import com.shumu.common.office.excel.annotation.Excel;
 
@@ -14,6 +15,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper=false)
 @Schema(title= "企业地图地址")
+@TableName("data_map_address")
 public class CompanyMapAddress extends BaseEntity {
     @Schema(title= "地图类型(0高德1百度)")
     @Excel(name="地图类型", width = 60)
@@ -24,6 +26,9 @@ public class CompanyMapAddress extends BaseEntity {
     @Schema(title= "企业代码")
     @Excel(name="企业代码", width = 60)
     private String companyCode;
+    @Schema(title= "统一社会信用代码")
+    @Excel(name="信用代码", width = 60)
+    private String socialCode;
     @Schema(title= "批次代码")
     @Excel(name="批次代码", width = 60)
     private String batchCode;
@@ -63,4 +68,10 @@ public class CompanyMapAddress extends BaseEntity {
     @Schema(title= "区划代码")
     @Excel(name="区划代码", width = 60)
     private String zoneCode;
+    @Schema(title= "结构化地址")
+    @Excel(name="结构化地址", width = 60)
+    private String formatAddress;
+    @Schema(title= "输入地址")
+    @Excel(name="输入地址", width = 60)
+    private String inputAddress;
 }
